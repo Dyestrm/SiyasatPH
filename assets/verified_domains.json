@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "domains": [
+    { "institution": "BDO", "domain": "bdo.com.ph", "category": "bank" },
+    { "institution": "BPI", "domain": "bpi.com.ph", "category": "bank" },
+    { "institution": "Metrobank", "domain": "metrobank.com.ph", "category": "bank" },
+    { "institution": "UnionBank", "domain": "unionbankph.com", "category": "bank" },
+    { "institution": "Landbank", "domain": "landbank.com", "category": "bank" },
+    { "institution": "GCash", "domain": "gcash.com", "category": "ewallet" },
+    { "institution": "Maya", "domain": "maya.ph", "category": "ewallet" },
+    { "institution": "Maya", "domain": "paymaya.com", "category": "ewallet" },
+    { "institution": "SSS", "domain": "sss.gov.ph", "category": "government" },
+    { "institution": "GSIS", "domain": "gsis.gov.ph", "category": "government" },
+    { "institution": "PhilHealth", "domain": "philhealth.gov.ph", "category": "government" },
+    { "institution": "Pag-IBIG", "domain": "pagibigfund.gov.ph", "category": "government" },
+    { "institution": "Globe", "domain": "globe.com.ph", "category": "telco" },
+    { "institution": "Smart", "domain": "smart.com.ph", "category": "telco" },
+    { "institution": "DITO", "domain": "dito.ph", "category": "telco" }
+  ]
+}

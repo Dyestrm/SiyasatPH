@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "patterns": [
+    {
+      "category": "Bank and E-Wallet Scam",
+      "flags": ["urgency_language", "lookalike_url"],
+      "keywords": ["verify", "suspend", "blocked", "unusual activity", "unauthorized"],
+      "urgency_phrases": [
+        "verify now", "within 24 hours", "your account will be suspended",
+        "immediate action required", "act now", "expires today",
+        "your account has been blocked", "click immediately"
+      ],
+      "institutions": ["BDO", "BPI", "GCash", "Maya", "UnionBank", "Metrobank", "Landbank"],
+      "risk_score": 90,
+      "verdict": "Likely Scam",
+      "explanation": {
+        "eng": "This message uses urgent language to pressure you into clicking a link. Legitimate banks never ask you to verify your account through SMS.",
+        "fil": "Ginagamit ng mensaheng ito ang pananakot para mapapindot ka ng link. Ang tunay na bangko ay hindi hihilingin na i-verify ang iyong account sa SMS."
+      }
+    },
+    {
+      "category": "Government Benefit Scam",
+      "flags": ["urgency_language", "fake_sender"],
+      "keywords": ["SSS", "GSIS", "PhilHealth", "pension", "benefit", "claim", "release"],
+      "urgency_phrases": [
+        "claim your benefit now", "your pension is ready",
+        "verify your SSS account", "update your GSIS information",
+        "your PhilHealth contribution"
+      ],
+      "institutions": ["SSS", "GSIS", "PhilHealth", "Pag-IBIG"],
+      "risk_score": 85,
+      "verdict": "Likely Scam",
+      "explanation": {
+        "eng": "Government agencies like SSS and GSIS do not send SMS asking you to claim benefits through a link.",
+        "fil": "Ang mga ahensya ng gobyerno tulad ng SSS at GSIS ay hindi nagpapadala ng SMS para mag-claim ng benepisyo sa pamamagitan ng link."
+      }
+    },
+    {
+      "category": "Prize and Reward Scam",
+      "flags": ["urgency_language", "too_good_to_be_true"],
+      "keywords": ["congratulations", "winner", "prize", "reward", "free", "won"],
+      "urgency_phrases": [
+        "you have won", "claim your prize", "congratulations you are selected",
+        "you are our lucky winner", "claim within 24 hours"
+      ],
+      "institutions": [],
+      "risk_score": 88,
+      "verdict": "Likely Scam",
+      "explanation": {
+        "eng": "You cannot win a prize you never joined. This is a common trick to steal your personal information.",
+        "fil": "Hindi ka mananalo ng premyo sa paligsahang hindi ka sumali. Ito ay karaniwang paraan para nakawin ang iyong personal na impormasyon."
+      }
+    }
+  ]
+}
