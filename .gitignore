@@ -27,7 +27,10 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
+.packages
+.metadata
 .pub-cache/
 .pub/
 /build/
@@ -43,4 +46,25 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-SiyasatPH/
+
+# Android
+.gradle/
+**/android/local.properties
+**/android/key.properties
+**/android/gradlew
+**/android/gradlew.bat
+**/android/captures/
+*.jks
+*.keystore
+
+# iOS / Xcode
+**/ios/Pods/
+**/ios/Podfile.lock
+**/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/ServiceDefinitions.json
