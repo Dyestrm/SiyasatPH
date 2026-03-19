@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447455254557",
+    "project_id": "siyasatph",
+    "storage_bucket": "siyasatph.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447455254557:android:939836e4fd1e7774a68ef4",
+        "android_client_info": {
+          "package_name": "com.example.siyasat_ph"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCESWMc5vQz4APfPFMp551oyghVGAvZHJo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
