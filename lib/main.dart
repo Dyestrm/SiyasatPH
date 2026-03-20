@@ -3,22 +3,30 @@ import 'engine/rules_engine.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(const LandingSiyasat());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ScreenEntry { // Helper class to represent a screen entry in the list
+  final String title;
+  final Widget screen;
 
+  const ScreenEntry({required this.title, required this.screen});
+}
+
+class LandingSiyasat extends StatelessWidget {
+  const LandingSiyasat({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SiyasatPH Test',
+      theme: ThemeData(fontFamily: 'Poppins'),
       home: TestScreen(),
     );
   }
 }
 
 class TestScreen extends StatefulWidget {
+  const TestScreen({super.key});
   @override
   State<TestScreen> createState() => _TestScreenState();
 }
