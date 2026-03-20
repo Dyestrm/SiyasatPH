@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'SiyasatPH Test',
       home: TestScreen(),
     );
@@ -19,6 +19,8 @@ class MyApp extends StatelessWidget {
 }
 
 class TestScreen extends StatefulWidget {
+  const TestScreen({super.key});
+
   @override
   State<TestScreen> createState() => _TestScreenState();
 }
@@ -52,7 +54,6 @@ ${verdict.explanation}
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Test 1 — obvious scam
             ElevatedButton(
               onPressed: () => _test(
                 'Your BDO account is suspended. Verify now at bdo-verify.com/login or your account will be closed.',
@@ -61,7 +62,6 @@ ${verdict.explanation}
               child: const Text('Test 1 — Obvious Scam'),
             ),
             const SizedBox(height: 8),
-            // Test 2 — suspicious only
             ElevatedButton(
               onPressed: () => _test(
                 'Please verify your GCash account immediately.',
@@ -70,7 +70,6 @@ ${verdict.explanation}
               child: const Text('Test 2 — Suspicious'),
             ),
             const SizedBox(height: 8),
-            // Test 3 — safe message
             ElevatedButton(
               onPressed: () => _test(
                 'Your OTP is 123456. Valid for 5 minutes. Do not share this with anyone.',
@@ -79,7 +78,6 @@ ${verdict.explanation}
               child: const Text('Test 3 — Safe'),
             ),
             const SizedBox(height: 8),
-            // Test 4 — government scam
             ElevatedButton(
               onPressed: () => _test(
                 'SSS: Your benefit is ready. Claim within 24 hours at sss-claim.com',
@@ -88,7 +86,6 @@ ${verdict.explanation}
               child: const Text('Test 4 — Gov Scam'),
             ),
             const SizedBox(height: 16),
-            // Result display
             Expanded(
               child: Container(
                 width: double.infinity,
