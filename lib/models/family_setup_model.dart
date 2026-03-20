@@ -1,12 +1,14 @@
 // lib/models/family_setup_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class FamilySetupModel {
   final String deviceId;
   final String configName;
   final List<String> selectedBanks;
   final List<String> selectedGovernments;
+  final List<String> selectedTelcos;
   final String language;
   final String? notifyName;
   final String? notifyContact;
@@ -19,6 +21,7 @@ class FamilySetupModel {
     required this.configName,
     required this.selectedBanks,
     required this.selectedGovernments,
+    required this.selectedTelcos,
     required this.language,
     this.notifyName,
     this.notifyContact,
@@ -33,6 +36,7 @@ class FamilySetupModel {
     'config_name': configName,
     'selected_banks': selectedBanks,
     'selected_governments': selectedGovernments,
+    'selected_telcos': selectedTelcos,
     'language': language,
     'notify_name': notifyName,
     'notify_contact': notifyContact,
@@ -47,6 +51,7 @@ class FamilySetupModel {
     'config_name': configName,
     'selected_banks': selectedBanks,
     'selected_governments': selectedGovernments,
+    'selected_telcos': selectedTelcos,
     'language': language,
     'notify_name': notifyName,
     'notify_contact': notifyContact,
@@ -62,6 +67,7 @@ class FamilySetupModel {
         configName: map['config_name'],
         selectedBanks: List<String>.from(map['selected_banks']),
         selectedGovernments: List<String>.from(map['selected_governments']),
+        selectedTelcos: List<String>.from(map['selected_telcos'] ?? []),
         language: map['language'],
         notifyName: map['notify_name'],
         notifyContact: map['notify_contact'],
@@ -77,6 +83,7 @@ class FamilySetupModel {
         configName: map['config_name'],
         selectedBanks: List<String>.from(map['selected_banks']),
         selectedGovernments: List<String>.from(map['selected_governments']),
+        selectedTelcos: List<String>.from(map['selected_telcos'] ?? []),
         language: map['language'],
         notifyName: map['notify_name'],
         notifyContact: map['notify_contact'],

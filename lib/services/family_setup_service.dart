@@ -3,6 +3,7 @@ import 'package:siyasat_ph/utils/device_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:async';
 
 class FamilySetupService {
   final _db = FirebaseFirestore.instance;
@@ -34,6 +35,7 @@ class FamilySetupService {
     required String configName,
     required List<String> selectedBanks,
     required List<String> selectedGovernments,
+    required List<String> selectedTelcos,
     required String language,
     String? notifyName,
     String? notifyContact,
@@ -45,6 +47,7 @@ class FamilySetupService {
       configName: configName,
       selectedBanks: selectedBanks,
       selectedGovernments: selectedGovernments,
+      selectedTelcos: selectedTelcos,
       language: language,
       notifyName: notifyName,
       notifyContact: notifyContact,
@@ -57,29 +60,36 @@ class FamilySetupService {
     await _saveLocally(setup);
 
     // sync to Firestore (for notifications)
+    // sync to Firestore (for notifications)
     try {
       final query = await _db
           .collection(_collection)
           .where('device_id', isEqualTo: deviceId)
-          .get();
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 5));
 
       if (query.docs.isEmpty) {
-        // first time - create
-        await _db.collection(_collection).add(setup.toFirestoreMap());
+        await _db
+            .collection(_collection)
+            .add(setup.toFirestoreMap())
+            .timeout(const Duration(seconds: 5));
       } else {
-        // already exists - update
-        await query.docs.first.reference.update({
-          'config_name': configName,
-          'selected_banks': selectedBanks,
-          'selected_governments': selectedGovernments,
-          'language': language,
-          'notify_name': notifyName,
-          'notify_contact': notifyContact,
-          'updated_at': DateTime.now(),
-        });
+        await query.docs.first.reference
+            .update({
+              'config_name': configName,
+              'selected_banks': selectedBanks,
+              'selected_governments': selectedGovernments,
+              'selected_telcos': selectedTelcos,
+              'language': language,
+              'notify_name': notifyName,
+              'notify_contact': notifyContact,
+              'updated_at': DateTime.now(),
+            })
+            .timeout(const Duration(seconds: 5));
       }
+    } on TimeoutException catch (_) {
+      print('Firestore timed out, saved locally only.');
     } catch (e) {
-      // no internet - local save already done
       print('Firestore sync failed, saved locally only: $e');
     }
   }
