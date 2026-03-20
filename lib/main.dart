@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'SiyasatPH Test',
       home: TestScreen(),
     );
@@ -21,8 +21,10 @@ class MyApp extends StatelessWidget {
 }
 
 class TestScreen extends StatefulWidget {
-	@override
-	State<TestScreen> createState() => _TestScreenState();
+  const TestScreen({super.key});
+
+  @override
+  State<TestScreen> createState() => _TestScreenState();
 }
 
 class _TestScreenState extends State<TestScreen> {

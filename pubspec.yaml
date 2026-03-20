@@ -39,6 +39,7 @@ dependencies:
   provider: ^6.1.2
   cloud_firestore: 5.6.12
   path_provider: ^2.1.5   # For reading/writing outside 'assets/'
+  flutter_notification_listener: ^1.4.0
 
 dev_dependencies:
   flutter_test:
