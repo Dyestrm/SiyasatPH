@@ -54,6 +54,18 @@ flutter:
   assets:
     - assets/scam_patterns.json
     - assets/verified_domains.json
+    - assets2/logo.png
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: fonts/Poppins-Medium.ttf
+          weight: 500
+
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

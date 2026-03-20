@@ -1,7 +1,37 @@
 import 'package:flutter/material.dart';
-import 'engine/rules_engine.dart';
+// import 'engine/rules_engine.dart';
+import './theme/colors.dart';
+import './screens/landing_screen.dart';
 
-void main() async {
+void main() {
+  runApp(const SiyasatPH());
+}
+
+//root widget
+class SiyasatPH extends StatelessWidget {
+  const SiyasatPH({
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "SiyasatPH",
+      theme: ThemeData(
+        primaryColor: AppColors.primaryTeal,
+        scaffoldBackgroundColor: AppColors.backgroundColor,
+        fontFamily: 'Poppins',
+      ),
+      
+      home: LandingScreen(),
+    );
+    
+  }
+
+
+}
+
+/* void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -115,3 +145,6 @@ ${verdict.explanation}
     );
   }
 }
+
+
+*/
