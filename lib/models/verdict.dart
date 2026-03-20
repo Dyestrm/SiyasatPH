@@ -14,4 +14,22 @@ class Verdict {
     required this.senderNumber,
     required this.timestamp,
   });
+
+  factory Verdict.fromJson(Map<String, dynamic> json) {
+    return Verdict(
+      level: RiskLevel.values.byName(json['level'] as String),
+      reasons: List<String>.from(json['reasons'] ?? []),
+      explanation: json['explanation'] as String,
+      senderNumber: json['senderNumber'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'level': level.name,
+    'reasons': reasons,
+    'explanation': explanation,
+    'senderNumber': senderNumber,
+    'timestamp': timestamp.toIso8601String(),
+  };
 }

@@ -16,7 +16,7 @@ class LandingScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets2/Group 89.png',
+                  'assets/images/siyasat_logo.svg',
                   height: 120,
                 ),
 
