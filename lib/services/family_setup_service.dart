@@ -1,16 +1,16 @@
-import 'package:siyasat_ph/models/family_setup_model.dart';
-import 'package:siyasat_ph/utils/device_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
+import '../models/family_setup_model.dart';
+import '../utils/device_utils.dart';
 
 class FamilySetupService {
   final _db = FirebaseFirestore.instance;
   final _collection = 'FamilySetup';
   final _localKey = 'family_setup';
 
-  // Local Storage ──────────────────────────────────────────
+  // ── LOCAL ───────────────────────────────────────────────────
 
   Future<void> _saveLocally(FamilySetupModel setup) async {
     final prefs = await SharedPreferences.getInstance();
@@ -29,7 +29,7 @@ class FamilySetupService {
     await prefs.remove(_localKey);
   }
 
-  // Public Methods ─────────────────────────────────────────
+  // ── PUBLIC ──────────────────────────────────────────────────
 
   Future<void> saveSetup({
     required String configName,
@@ -39,6 +39,9 @@ class FamilySetupService {
     required String language,
     String? notifyName,
     String? notifyContact,
+    String? elderEmail,
+    String? elderContact,
+    String? elderAddress,
   }) async {
     final deviceId = await getOrCreateDeviceId();
 
@@ -51,16 +54,16 @@ class FamilySetupService {
       language: language,
       notifyName: notifyName,
       notifyContact: notifyContact,
+      elderEmail: elderEmail,
+      elderContact: elderContact,
+      elderAddress: elderAddress,
       isActive: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    // save locally first (works offline)
     await _saveLocally(setup);
 
-    // sync to Firestore (for notifications)
-    // sync to Firestore (for notifications)
     try {
       final query = await _db
           .collection(_collection)
@@ -83,6 +86,9 @@ class FamilySetupService {
               'language': language,
               'notify_name': notifyName,
               'notify_contact': notifyContact,
+              'elder_email': elderEmail,
+              'elder_contact': elderContact,
+              'elder_address': elderAddress,
               'updated_at': DateTime.now(),
             })
             .timeout(const Duration(seconds: 5));
@@ -95,11 +101,9 @@ class FamilySetupService {
   }
 
   Future<FamilySetupModel?> getSetup() async {
-    // local first (works offline)
     final local = await _loadLocally();
     if (local != null) return local;
 
-    // fallback to Firestore if no local data
     try {
       final deviceId = await getOrCreateDeviceId();
       final query = await _db
@@ -111,7 +115,7 @@ class FamilySetupService {
       if (query.docs.isEmpty) return null;
 
       final setup = FamilySetupModel.fromFirestore(query.docs.first.data());
-      await _saveLocally(setup); // cache locally for next time
+      await _saveLocally(setup);
       return setup;
     } catch (e) {
       return null;
@@ -124,10 +128,8 @@ class FamilySetupService {
   }
 
   Future<void> deactivateSetup() async {
-    // clear local first
     await _deleteLocally();
 
-    // soft delete in Firestore
     try {
       final deviceId = await getOrCreateDeviceId();
       final query = await _db

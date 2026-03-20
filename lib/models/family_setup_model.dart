@@ -1,7 +1,4 @@
-// lib/models/family_setup_model.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 class FamilySetupModel {
   final String deviceId;
@@ -12,6 +9,9 @@ class FamilySetupModel {
   final String language;
   final String? notifyName;
   final String? notifyContact;
+  final String? elderEmail;
+  final String? elderContact;
+  final String? elderAddress;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -25,12 +25,14 @@ class FamilySetupModel {
     required this.language,
     this.notifyName,
     this.notifyContact,
+    this.elderEmail,
+    this.elderContact,
+    this.elderAddress,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  // For local storage (shared_preferences) - uses ISO string for DateTime
   Map<String, dynamic> toMap() => {
     'device_id': deviceId,
     'config_name': configName,
@@ -40,12 +42,14 @@ class FamilySetupModel {
     'language': language,
     'notify_name': notifyName,
     'notify_contact': notifyContact,
+    'elder_email': elderEmail,
+    'elder_contact': elderContact,
+    'elder_address': elderAddress,
     'is_active': isActive,
     'created_at': createdAt.toIso8601String(),
     'updated_at': updatedAt.toIso8601String(),
   };
 
-  // For Firestore - uses Timestamp instead of ISO string
   Map<String, dynamic> toFirestoreMap() => {
     'device_id': deviceId,
     'config_name': configName,
@@ -55,12 +59,14 @@ class FamilySetupModel {
     'language': language,
     'notify_name': notifyName,
     'notify_contact': notifyContact,
+    'elder_email': elderEmail,
+    'elder_contact': elderContact,
+    'elder_address': elderAddress,
     'is_active': isActive,
     'created_at': Timestamp.fromDate(createdAt),
     'updated_at': Timestamp.fromDate(updatedAt),
   };
 
-  // From local storage (shared_preferences)
   factory FamilySetupModel.fromMap(Map<String, dynamic> map) =>
       FamilySetupModel(
         deviceId: map['device_id'],
@@ -71,12 +77,14 @@ class FamilySetupModel {
         language: map['language'],
         notifyName: map['notify_name'],
         notifyContact: map['notify_contact'],
+        elderEmail: map['elder_email'],
+        elderContact: map['elder_contact'],
+        elderAddress: map['elder_address'],
         isActive: map['is_active'],
         createdAt: DateTime.parse(map['created_at']),
         updatedAt: DateTime.parse(map['updated_at']),
       );
 
-  // From Firestore
   factory FamilySetupModel.fromFirestore(Map<String, dynamic> map) =>
       FamilySetupModel(
         deviceId: map['device_id'],
@@ -87,6 +95,9 @@ class FamilySetupModel {
         language: map['language'],
         notifyName: map['notify_name'],
         notifyContact: map['notify_contact'],
+        elderEmail: map['elder_email'],
+        elderContact: map['elder_contact'],
+        elderAddress: map['elder_address'],
         isActive: map['is_active'],
         createdAt: (map['created_at'] as Timestamp).toDate(),
         updatedAt: (map['updated_at'] as Timestamp).toDate(),
