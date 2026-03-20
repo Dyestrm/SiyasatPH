@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'engine/rules_engine.dart';
-import 'repository/history_repository.dart';
-import 'models/history_entry.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'services/family_setup_service.dart';
+import 'models/family_setup_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -13,153 +15,321 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'SiyasatPH Test',
-      home: TestScreen(),
-    );
+    return MaterialApp(home: FamilySetupTestScreen());
   }
 }
 
-class TestScreen extends StatefulWidget {
-  const TestScreen({super.key});
+class FamilySetupTestScreen extends StatefulWidget {
+  const FamilySetupTestScreen({super.key});
 
   @override
-  State<TestScreen> createState() => _TestScreenState();
+  State<FamilySetupTestScreen> createState() => _FamilySetupTestScreenState();
 }
 
-class _TestScreenState extends State<TestScreen> {
-  	String _result = 'Press a button to test';
-  	final _engine = RulesEngine();
+class _FamilySetupTestScreenState extends State<FamilySetupTestScreen> {
+  final _service = FamilySetupService();
 
-	String _historyText = 'Loading history...';
-	List<HistoryEntry> _historyEntries = [];
+  final _configName = TextEditingController();
+  final _notifyName = TextEditingController();
+  final _notifyContact = TextEditingController();
+  final _elderEmail = TextEditingController();
+  final _elderContact = TextEditingController();
+  final _elderAddress = TextEditingController();
 
-	@override
-	void initState() {
-		super.initState();
-		_loadHistory();           // automatically loads history when screen opens
-	}	
+  String _selectedLanguage = 'fil';
+  List<String> _selectedBanks = [];
+  List<String> _selectedGovt = [];
+  List<String> _selectedTelcos = [];
+  String _status = 'No action yet.';
+  FamilySetupModel? _loadedSetup;
 
-	Future<void> _test(String message, String label) async {
-		setState(() => _result = 'Analyzing...');
-		final verdict = await _engine.analyze(message, '09171234567');
+  final _banks = [
+    'BDO',
+    'BPI',
+    'Metrobank',
+    'UnionBank',
+    'Landbank',
+    'GCash',
+    'Maya',
+  ];
+  final _govts = ['SSS', 'PhilHealth', 'Pag-IBIG', 'GSIS'];
+  final _telcos = ['Globe', 'Smart', 'DITO'];
 
-		/* ----History Tracking test---- */
-		await HistoryRepository().saveAnalysis(message, verdict);
-		await HistoryRepository().displayHistory();
-		await _loadHistory();
+  void _toggleBank(String bank) => setState(
+    () => _selectedBanks.contains(bank)
+        ? _selectedBanks.remove(bank)
+        : _selectedBanks.add(bank),
+  );
 
-		setState(() {
-		_result = '''
-				TEST: $label
+  void _toggleGovt(String govt) => setState(
+    () => _selectedGovt.contains(govt)
+        ? _selectedGovt.remove(govt)
+        : _selectedGovt.add(govt),
+  );
 
-				Verdict: ${verdict.level.name}
-				Score reasons:
-				${verdict.reasons.isEmpty ? '• None' : verdict.reasons.map((r) => '• $r').join('\n')}
+  void _toggleTelco(String telco) => setState(
+    () => _selectedTelcos.contains(telco)
+        ? _selectedTelcos.remove(telco)
+        : _selectedTelcos.add(telco),
+  );
 
-				Explanation:
-				${verdict.explanation}
-			''';
-		});
-	}
+  Future<void> _save() async {
+    setState(() => _status = 'Saving...');
+    try {
+      await _service.saveSetup(
+        configName: _configName.text,
+        selectedBanks: _selectedBanks,
+        selectedGovernments: _selectedGovt,
+        selectedTelcos: _selectedTelcos,
+        language: _selectedLanguage,
+        notifyName: _notifyName.text.isEmpty ? null : _notifyName.text,
+        notifyContact: _notifyContact.text.isEmpty ? null : _notifyContact.text,
+        elderEmail: _elderEmail.text.isEmpty ? null : _elderEmail.text,
+        elderContact: _elderContact.text.isEmpty ? null : _elderContact.text,
+        elderAddress: _elderAddress.text.isEmpty ? null : _elderAddress.text,
+      );
+      setState(() => _status = '✅ Saved successfully!');
+    } catch (e) {
+      setState(() => _status = '❌ Save failed: $e');
+    }
+  }
 
-	/* ----History Tracking Test---- */
-	Future<void> _loadHistory() async {
-		try {
-		final entries = await HistoryRepository().getAll();
-		setState(() {
-			_historyEntries = entries;
-			_historyText = entries.isEmpty
-				? 'No analysis history yet.'
-				: '📜 ${entries.length} saved analyses\n\n'
-					'Latest: ${entries.first.result.level.name} '
-					'(${entries.first.result.explanation})';
-		});
-		} catch (e) {
-		setState(() => _historyText = 'Error loading history: $e');
-		}
-	}
+  Future<void> _load() async {
+    setState(() => _status = 'Loading...');
+    final setup = await _service.getSetup();
+    setState(() {
+      _loadedSetup = setup;
+      _status = setup != null
+          ? '✅ Loaded: ${setup.configName}'
+          : '⚠️ No setup found.';
+    });
+  }
 
-	@override
-	Widget build(BuildContext context) {	
-		return Scaffold(
-		appBar: AppBar(title: const Text('SiyasatPH Engine Test')),
-		body: Padding(
-			padding: const EdgeInsets.all(16),
-			child: Column(
-			children: [
-				// Test 1 — obvious scam
-				ElevatedButton(
-				onPressed: () => _test(
-					'Your BDO account is suspended. Verify now at bdo-verify.com/login or your account will be closed.',
-					'Obvious Scam (BDO fake URL + urgency)',
-				),
-				child: const Text('Test 1 — Obvious Scam'),
-				),
-				const SizedBox(height: 8),
-				// Test 2 — suspicious only
-				ElevatedButton(
-				onPressed: () => _test(
-					'Please verify your GCash account immediately.',
-					'Suspicious (urgency only, no URL)',
-				),
-				child: const Text('Test 2 — Suspicious'),
-				),
-				const SizedBox(height: 8),
-				// Test 3 — safe message
-				ElevatedButton(
-				onPressed: () => _test(
-					'Your OTP is 123456. Valid for 5 minutes. Do not share this with anyone.',
-					'Safe (OTP message)',
-				),
-				child: const Text('Test 3 — Safe'),
-				),
-				const SizedBox(height: 8),
-				// Test 4 — government scam
-				ElevatedButton(
-				onPressed: () => _test(
-					'SSS: Your benefit is ready. Claim within 24 hours at sss-claim.com',
-					'Government Scam (SSS fake URL)',
-				),
-				child: const Text('Test 4 — Gov Scam'),
-				),
-				const SizedBox(height: 16),
-				// Analysis History
-				const Text('📜 History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-				Container(
-				width: double.infinity,
-				padding: const EdgeInsets.all(12),
-				decoration: BoxDecoration(
-					color: Colors.grey[100],
-					borderRadius: BorderRadius.circular(10),
-					border: Border.all(color: Colors.grey[300]!),
-				),
-				child: Text(_historyText, style: const TextStyle(fontSize: 13)),
-				),
-				// Result display
-				Expanded(
-				child: Container(
-					width: double.infinity,
-					padding: const EdgeInsets.all(12),
-					decoration: BoxDecoration(
-					color: Colors.grey[100],
-					borderRadius: BorderRadius.circular(10),
-					border: Border.all(color: Colors.grey[300]!),
-					),
-					child: SingleChildScrollView(
-					child: Text(
-						_result,
-						style: const TextStyle(
-						fontFamily: 'monospace',
-						fontSize: 13,
-						),
-					),
-					),
-				),
-				),
-			],
-			),
-		),
-		);
-	}
+  Future<void> _deactivate() async {
+    setState(() => _status = 'Deactivating...');
+    await _service.deactivateSetup();
+    setState(() {
+      _loadedSetup = null;
+      _status = '✅ Setup deactivated.';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Family Setup Test')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // STATUS
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              color: Colors.grey[200],
+              child: Text(_status, style: const TextStyle(fontSize: 16)),
+            ),
+            const SizedBox(height: 16),
+
+            // FORM
+            TextField(
+              controller: _configName,
+              decoration: const InputDecoration(labelText: 'Config Name'),
+            ),
+            TextField(
+              controller: _notifyName,
+              decoration: const InputDecoration(
+                labelText: 'Notify Name (optional)',
+              ),
+            ),
+            TextField(
+              controller: _notifyContact,
+              decoration: const InputDecoration(
+                labelText: 'Notify Contact (optional)',
+              ),
+            ),
+            const Divider(height: 24),
+            const Text(
+              'Elder Details (for NTC report)',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _elderEmail,
+              decoration: const InputDecoration(
+                labelText: 'Elder Email (optional)',
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
+              controller: _elderContact,
+              decoration: const InputDecoration(
+                labelText: 'Elder Contact (optional)',
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            TextField(
+              controller: _elderAddress,
+              decoration: const InputDecoration(
+                labelText: 'Elder Address (optional)',
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // LANGUAGE
+            const Text(
+              'Language:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                Radio(
+                  value: 'fil',
+                  groupValue: _selectedLanguage,
+                  onChanged: (v) => setState(() => _selectedLanguage = v!),
+                ),
+                const Text('Filipino'),
+                Radio(
+                  value: 'en',
+                  groupValue: _selectedLanguage,
+                  onChanged: (v) => setState(() => _selectedLanguage = v!),
+                ),
+                const Text('English'),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // BANKS
+            const Text(
+              'Banks / E-Wallets:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Wrap(
+              spacing: 8,
+              children: _banks
+                  .map(
+                    (b) => FilterChip(
+                      label: Text(b),
+                      selected: _selectedBanks.contains(b),
+                      onSelected: (_) => _toggleBank(b),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+
+            // GOVERNMENT
+            const Text(
+              'Government Agencies:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Wrap(
+              spacing: 8,
+              children: _govts
+                  .map(
+                    (g) => FilterChip(
+                      label: Text(g),
+                      selected: _selectedGovt.contains(g),
+                      onSelected: (_) => _toggleGovt(g),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+
+            // TELCOS
+            const Text(
+              'Telcos:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Wrap(
+              spacing: 8,
+              children: _telcos
+                  .map(
+                    (t) => FilterChip(
+                      label: Text(t),
+                      selected: _selectedTelcos.contains(t),
+                      onSelected: (_) => _toggleTelco(t),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 20),
+
+            // BUTTONS
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _save,
+                    child: const Text('Save'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _load,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text('Load'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _deactivate,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text('Deactivate'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // LOADED DATA
+            if (_loadedSetup != null) ...[
+              const Text(
+                'Loaded Data:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                color: Colors.blue[50],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Config: ${_loadedSetup!.configName}'),
+                    Text('Language: ${_loadedSetup!.language}'),
+                    Text('Banks: ${_loadedSetup!.selectedBanks.join(", ")}'),
+                    Text(
+                      'Govts: ${_loadedSetup!.selectedGovernments.join(", ")}',
+                    ),
+                    Text('Telcos: ${_loadedSetup!.selectedTelcos.join(", ")}'),
+                    Text('Notify Name: ${_loadedSetup!.notifyName ?? "none"}'),
+                    Text(
+                      'Notify Contact: ${_loadedSetup!.notifyContact ?? "none"}',
+                    ),
+                    const Divider(),
+                    const Text(
+                      'Elder Details:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('Email: ${_loadedSetup!.elderEmail ?? "none"}'),
+                    Text('Contact: ${_loadedSetup!.elderContact ?? "none"}'),
+                    Text('Address: ${_loadedSetup!.elderAddress ?? "none"}'),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }
