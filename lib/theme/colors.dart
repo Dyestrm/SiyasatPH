@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SiyasatColors {
+class AppColors {
   static const Color safeColor = Color(0xFF4CAF50);
   static const Color suspiciousColor = Color(0xFFFFA726);
   static const Color scamColor = Color(0xFFE53935);
