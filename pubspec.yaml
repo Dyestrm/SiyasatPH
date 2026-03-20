@@ -59,6 +59,7 @@ flutter:
     - assets/scam_patterns.json
     - assets/verified_domains.json
     - assets/images/siyasat_logo.svg
+    - assets/images/siyasat_logo.png
 
 
   # To add assets to your application, add an assets section, like this:

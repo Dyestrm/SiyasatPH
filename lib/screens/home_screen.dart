@@ -45,16 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SiyasatColors.backgroundColor,
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: SiyasatColors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         // teal top border line
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2),
           child: Container(
             height: 2,
-            color:  SiyasatColors.primaryTeal,
+            color:  AppColors.primaryTeal,
           ),
         ),
         title: Row(
@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: SiyasatColors.black,
+                color: AppColors.black,
               ),
             ),
           ],
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             const Text(
               'Ipaste rito para suriin. Walang kailangang internet para rito.',
-              style: TextStyle(color: SiyasatColors.midGrey,
+              style: TextStyle(color: AppColors.midGrey,
               fontSize: 14),
             ),
             const SizedBox(height: 10),
@@ -99,21 +99,21 @@ class _HomeScreenState extends State<HomeScreen> {
             // --- Message Text Area ---
             TextField(
               controller: _messageController,
-              style: const TextStyle(color: SiyasatColors.textGrey, fontSize: 12),
+              style: const TextStyle(color: AppColors.textGrey, fontSize: 12),
               maxLines: null,
               minLines: 5,
               decoration: InputDecoration(
                 hintText: 'I-paste ang mensahe rito',
-                hintStyle: const TextStyle(color: SiyasatColors.grey, fontSize: 12, fontWeight:FontWeight(600)),
+                hintStyle: const TextStyle(color: AppColors.grey, fontSize: 12, fontWeight:FontWeight(600)),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: SiyasatColors.midGrey),
+                  borderSide: BorderSide(color: AppColors.midGrey),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(color: SiyasatColors.primaryTeal, width: 2),
+                  borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
                 ),
               ),
             ),
@@ -122,25 +122,25 @@ class _HomeScreenState extends State<HomeScreen> {
             // --- Sender Number ---
             const Text(
               "Numero nang nagpadala (opsyonal)",
-              style: TextStyle(color: SiyasatColors.midGrey, fontSize: 14),
+              style: TextStyle(color: AppColors.midGrey, fontSize: 14),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _senderController,
-              style: const TextStyle(color: SiyasatColors.textGrey, fontSize: 12),
+              style: const TextStyle(color: AppColors.textGrey, fontSize: 12),
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 hintText: '09xxxxxxxx',
-                hintStyle: const TextStyle(color: SiyasatColors.grey, fontSize: 12, fontWeight:FontWeight(600)),
+                hintStyle: const TextStyle(color: AppColors.grey, fontSize: 12, fontWeight:FontWeight(600)),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: SiyasatColors.midGrey),
+                  borderSide: BorderSide(color: AppColors.midGrey),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: SiyasatColors.primaryTeal, width: 2),
+                  borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
                 ),
               ),
             ),
@@ -154,8 +154,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ElevatedButton(
                   onPressed: _onScanTapped,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: SiyasatColors.primaryTeal,
-                    foregroundColor: SiyasatColors.white,
+                    backgroundColor: AppColors.primaryTeal,
+                    foregroundColor: AppColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -178,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Center( 
               child: Text( 
                 'Ang iyong mensahe ay hindi nai-save o inipadala.',
-                style: TextStyle(fontSize: 12, color: SiyasatColors.midGrey),
+                style: TextStyle(fontSize: 12, color: AppColors.midGrey),
               ),
             ),
             ),
@@ -188,9 +188,9 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SiyasatColors.inputFieldGray,
+                color: AppColors.inputFieldGray,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: SiyasatColors.inputFieldGray),
+                border: Border.all(color: AppColors.inputFieldGray),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: SiyasatColors.midGrey,
+                      color: AppColors.midGrey,
                     ),
                   ),
                   SizedBox(height: 10),
