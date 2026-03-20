@@ -20,7 +20,7 @@ class ContinueButton extends StatelessWidget {
           onPressed: onPressed,
           style: TextButton.styleFrom(
             foregroundColor: Colors.white,
-            backgroundColor: SiyasatColors.primaryTeal,
+            backgroundColor: AppColors.primaryTeal,
             textStyle: TextStyle(fontSize: 16),
           ),
           child: Text('Next'),
