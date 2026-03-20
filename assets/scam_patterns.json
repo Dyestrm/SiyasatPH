@@ -8,7 +8,16 @@
       "urgency_phrases": [
         "verify now", "within 24 hours", "your account will be suspended",
         "immediate action required", "act now", "expires today",
-        "your account has been blocked", "click immediately"
+        "your account has been blocked", "click immediately",
+        "verify your account", "verify your gcash", "verify your bdo",
+        "verify your bpi", "verify your maya", "account immediately",
+        "immediately", "urgent", "as soon as possible", "asap",
+        "limited time", "last chance", "final notice", "respond now",
+        "will be closed", "will be deactivated", "will be suspended",
+        "maso-suspend", "mag-verify na", "i-verify na", "i-click agad",
+        "mag-update na", "kailangang gawin agad", "huwag palampasin",
+        "claim now", "verify immediately", "update now", "login now",
+        "confirm now", "suspended", "account suspended", "access suspended"
       ],
       "institutions": ["BDO", "BPI", "GCash", "Maya", "UnionBank", "Metrobank", "Landbank"],
       "risk_score": 90,
@@ -24,8 +33,10 @@
       "keywords": ["SSS", "GSIS", "PhilHealth", "pension", "benefit", "claim", "release"],
       "urgency_phrases": [
         "claim your benefit now", "your pension is ready",
-        "verify your SSS account", "update your GSIS information",
-        "your PhilHealth contribution"
+        "verify your sss account", "update your gsis information",
+        "your philhealth contribution", "claim now", "within 24 hours",
+        "benefit expires", "claim immediately", "pension released",
+        "mag-claim na", "i-verify ang inyong", "update your account"
       ],
       "institutions": ["SSS", "GSIS", "PhilHealth", "Pag-IBIG"],
       "risk_score": 85,
@@ -41,7 +52,9 @@
       "keywords": ["congratulations", "winner", "prize", "reward", "free", "won"],
       "urgency_phrases": [
         "you have won", "claim your prize", "congratulations you are selected",
-        "you are our lucky winner", "claim within 24 hours"
+        "you are our lucky winner", "claim within 24 hours",
+        "claim your reward", "you won", "nanalo ka", "claim mo na",
+        "limited slots", "today only", "expires tonight"
       ],
       "institutions": [],
       "risk_score": 88,
