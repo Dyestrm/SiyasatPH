@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
-// import '../screens/setupChoice_screen.dart';
+import '../screens/setupChoice_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({
@@ -284,11 +284,9 @@ Widget _buildPage4() {
                           duration: Duration(milliseconds: 300),
                           curve: Curves.easeInOut,);
                         } else {
-                          // ----- navigate to SetupChoiceScreen (not built yet)
-
-                          /* Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => setupChoiceScreen()),
-                          ); */
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => SetupChoiceScreen()),
+                          );
               
                         }
                       },
@@ -323,4 +321,3 @@ Widget _buildPage4() {
     );
   }
 }
-      
