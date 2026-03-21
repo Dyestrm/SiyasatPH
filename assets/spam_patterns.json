@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "patterns": [
+    {
+      "category": "Loan / Pautang Spam",
+      "flags": ["promotional"],
+      "keywords": ["loan", "pautang", "cash advance", "instant loan", "quick cash"],
+      "urgency_phrases": [
+        "may available loan ka",
+        "pwede kang kumuha ng loan",
+        "instant loan approval",
+        "low interest loan",
+        "kumuha ng pautang ngayon",
+        "apply now for loan"
+      ],
+      "institutions": [],
+      "risk_score": 48,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Unsolicited loan offer spam. Legitimate lenders rarely send random SMS offers.",
+        "fil": "Hindi hinihinging loan offer spam. Bihirang magpadala ng ganito ang tunay na bangko."
+      }
+    },
+    {
+      "category": "Sabong / Betting Spam",
+      "flags": ["promotional"],
+      "keywords": ["sabong", "betting", "jackpot", "casino", "perya"],
+      "urgency_phrases": [
+        "sumali sa sabong",
+        "live betting now",
+        "manalo ng malaki ngayon",
+        "register at maglaro",
+        "online sabong"
+      ],
+      "institutions": [],
+      "risk_score": 45,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Illegal betting and sabong spam.",
+        "fil": "Ilegal na sugal at sabong spam."
+      }
+    },
+    {
+      "category": "Prize / Winner Spam",
+      "flags": ["promotional"],
+      "keywords": ["nanalo ka", "winner", "prize", "reward", "congratulations"],
+      "urgency_phrases": [
+        "nanalo ka ng prize",
+        "claim your reward",
+        "you are our lucky winner",
+        "congratulations you won",
+        "manalo ka ngayon"
+      ],
+      "institutions": [],
+      "risk_score": 42,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Fake prize spam. You can't win something you never entered.",
+        "fil": "Pekeng premyo spam. Hindi ka mananalo sa laro na hindi mo sinali."
+      }
+    },
+    {
+      "category": "Free Load / GCash Spam",
+      "flags": ["promotional"],
+      "keywords": ["free load", "free gcash", "load na load", "free g-cash"],
+      "urgency_phrases": [
+        "claim your free load",
+        "may libre kang load",
+        "free gcash reward",
+        "libre load ngayon"
+      ],
+      "institutions": [],
+      "risk_score": 40,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Fake free load or GCash reward spam.",
+        "fil": "Pekeng free load o GCash reward spam."
+      }
+    },
+    {
+      "category": "Job Offer Spam",
+      "flags": ["promotional"],
+      "keywords": ["work from home", "online job", "part time", "hiring now"],
+      "urgency_phrases": [
+        "work from home opportunity",
+        "kumita sa bahay",
+        "hiring ngayon",
+        "online job offer"
+      ],
+      "institutions": [],
+      "risk_score": 43,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Unsolicited job offer spam (often data harvesting).",
+        "fil": "Hindi hinihinging trabaho offer (madalas para lang mangulekta ng data)."
+      }
+    },
+    {
+      "category": "Fake Bank Promo Spam",
+      "flags": ["promotional"],
+      "keywords": ["bank promo", "double your money", "interest rate"],
+      "urgency_phrases": [
+        "special bank promo",
+        "double your savings",
+        "high interest rate"
+      ],
+      "institutions": [],
+      "risk_score": 38,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Fake bank promotional spam.",
+        "fil": "Pekeng bank promo spam."
+      }
+    },
+    {
+      "category": "Delivery / Lalamove Spam",
+      "flags": ["promotional"],
+      "keywords": ["delivery", "lalamove", "package", "parcel"],
+      "urgency_phrases": [
+        "may package ka",
+        "claim your parcel",
+        "lalamove delivery"
+      ],
+      "institutions": [],
+      "risk_score": 35,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Fake delivery notification spam.",
+        "fil": "Pekeng delivery notification spam."
+      }
+    },
+    {
+      "category": "Investment / Crypto Spam",
+      "flags": ["promotional"],
+      "keywords": ["crypto", "investment", "bitcoin", "forex"],
+      "urgency_phrases": [
+        "invest now",
+        "kumita sa crypto",
+        "high return investment"
+      ],
+      "institutions": [],
+      "risk_score": 41,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Unsolicited investment/crypto spam.",
+        "fil": "Hindi hinihinging investment/crypto spam."
+      }
+    },
+    {
+      "category": "Insurance / Health Spam",
+      "flags": ["promotional"],
+      "keywords": ["insurance", "health plan", "hmo"],
+      "urgency_phrases": [
+        "get your free insurance",
+        "health plan offer",
+        "libre na insurance"
+      ],
+      "institutions": [],
+      "risk_score": 37,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Unsolicited insurance spam.",
+        "fil": "Hindi hinihinging insurance spam."
+      }
+    },
+    {
+      "category": "SIM Registration / Globe-Smart Spam",
+      "flags": ["promotional"],
+      "keywords": ["sim registration", "globe", "smart", "dito"],
+      "urgency_phrases": [
+        "complete your sim registration",
+        "may problema sa sim mo",
+        "register your sim now"
+      ],
+      "institutions": [],
+      "risk_score": 39,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Fake SIM registration or telco spam.",
+        "fil": "Pekeng SIM registration o telco spam."
+      }
+    },
+    {
+      "category": "Fake Government / SSS Spam",
+      "flags": ["promotional"],
+      "keywords": ["sss", "gsis", "philhealth", "pension"],
+      "urgency_phrases": [
+        "claim your sss benefit",
+        "may pension ka na",
+        "update your gsis"
+      ],
+      "institutions": [],
+      "risk_score": 36,
+      "verdict": "Spam",
+      "explanation": {
+        "eng": "Fake government benefit spam.",
+        "fil": "Pekeng gobyerno benefit spam."
+      }
+    }
+  ]
+}
