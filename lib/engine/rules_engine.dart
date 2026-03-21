@@ -1,14 +1,17 @@
 import '../models/verdict.dart';
 import 'url_checker.dart';
 import 'urgency_detector.dart';
+import './bank_checker.dart';
 
 class RulesEngine {
   static final RulesEngine _instance = RulesEngine._internal();
   factory RulesEngine() => _instance;
   RulesEngine._internal();
 
+  // Singletons (objects declared once and reused)
   final UrlChecker _urlChecker = UrlChecker();
   final UrgencyDetector _urgencyDetector = UrgencyDetector();
+  final BankChecker _bankChecker = BankChecker();
 
   List<String> selectedBanks = [];
   String language = 'fil';
