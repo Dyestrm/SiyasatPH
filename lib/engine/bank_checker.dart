@@ -19,7 +19,8 @@ class BankChecker {
     final foundUrls = _extractUrls(lower);
     final bool hasUrl = foundUrls.isNotEmpty;
 
-    // Use verified_domains.json as source of truth (institutions only)
+    // NOTE: Only institutions present in verified_domains.json are recognized.
+    // Banks outside this list (e.g. PNB, RCBC) are intentionally ignored (risk = 0).
     final knownInstitutions = _urlChecker.domains
         .map((d) => d['institution'].toString().toLowerCase())
         .toSet();
