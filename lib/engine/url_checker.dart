@@ -10,7 +10,7 @@ class UrlChecker {
   bool _loaded = false;
 
   // Exposed so BankChecker can reuse the loaded verified_domains.json (no duplication)
-  List<dynamic> get domains => domains;
+  List<dynamic> get domains => _domains;
 
   Future<void> loadDomains() async {
     if (_loaded) return;
