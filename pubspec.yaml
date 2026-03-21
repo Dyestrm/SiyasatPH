@@ -58,6 +58,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/scam_patterns.json
+    - assets/spam_patterns.json
     - assets/verified_domains.json
     - assets/images/siyasat_logo.svg
     - assets/images/siyasat_logo.png
