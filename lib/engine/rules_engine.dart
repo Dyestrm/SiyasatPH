@@ -36,19 +36,11 @@ class RulesEngine {
       reasons.addAll(urlResult.reasons);
     }
 
-    // 3. Personalized bank check
-    if (selectedBanks.isNotEmpty) {
-      final lower = message.toLowerCase();
-      for (final bank in selectedBanks) {
-        if (lower.contains(bank.toLowerCase())) {
-          if (urlResult.isFlagged || urgencyResult.riskScore >= 55) {
-            score += 15;
-            reasons.add('Targets your bank: "$bank"');
-            break;
-          }
-        }
-      }
-    }
+    // 3. Bank Checker Matcher (full feature using verified_domains.json)
+    // TODO: Load selectedBanks from SharedPreferences / state management once setup screen is implemented by frontend team
+    final bankResult = await _bankChecker.check(message, selectedBanks, urlResult);
+    score += bankResult.riskScore;
+    reasons.addAll(bankResult.reasons);
 
     // 4. Clamp score to 100
     final clampedScore = score.clamp(0, 100);
