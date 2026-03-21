@@ -1,4 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Permission to check and open email apps -->
+    <queries>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="mailto" />
+    </intent>
+    </queries>
+    
     <application
         android:label="siyasat_ph"
         android:name="${applicationName}"
