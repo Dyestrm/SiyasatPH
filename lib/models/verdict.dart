@@ -1,4 +1,4 @@
-enum RiskLevel { safe, suspicious, likelyScam }
+enum RiskLevel { safe, spam, suspicious, likelyScam }
 
 class Verdict {
   final RiskLevel level;
