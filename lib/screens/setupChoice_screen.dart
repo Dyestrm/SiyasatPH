@@ -12,8 +12,13 @@ class SetupChoiceScreen extends StatefulWidget {
 }
 
 class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
+  // user type selection
   String _selectedConfig = 'Para sa akin';
+
+  // language selection
   String _selectedLanguage = 'Filipino';
+
+  // for name & contact input
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
 
@@ -24,6 +29,7 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
     super.dispose();
   }
 
+  // for selecting user type (Para sa akin/pamilya)
   Widget _buildChoiceCard(String title, String subtitle, String value) {
     bool isSelected = _selectedConfig == value;
     return Expanded(
@@ -74,6 +80,7 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
     );
   }
 
+  // text input field (name and contact)
   Widget _buildTextField(String label, TextEditingController controller,
       {TextInputType? keyboardType}) {
         return Container(
@@ -94,6 +101,7 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
         );
       }
 
+  // selecting language 
   Widget _buildLanguageToggle() {
     return Container(
       decoration: BoxDecoration(
@@ -219,7 +227,8 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
           children: [
             SizedBox(height: 24),
 
-            Text(
+            // 'who is this app for?'
+            Text( 
               'Sino ang gagamit?',
               style: TextStyle(
                 fontSize: 22,
@@ -234,6 +243,7 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
             ),
             SizedBox(height: 16),
 
+            // choice cards 
             Row(
               children: [
                 _buildChoiceCard('Para sa akin', 'For myself', 'Para sa akin'),
@@ -246,6 +256,8 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
             Divider(color: AppColors.lightGrey),
             SizedBox(height: 16),
 
+
+            // personal info & language selection
             Text(
               'Pansariling Impormasyon',
               style: TextStyle(fontSize: 14, color: AppColors.textColorGray),
@@ -303,6 +315,7 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
 
             SizedBox(height: 12),
 
+            // note: skip setup - goes directly to HomeScreen without saving
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
