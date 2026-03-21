@@ -9,6 +9,9 @@ class UrlChecker {
   List<dynamic> _domains = [];
   bool _loaded = false;
 
+  // Exposed so BankChecker can reuse the loaded verified_domains.json (no duplication)
+  List<dynamic> get domains => _domains;
+
   Future<void> loadDomains() async {
     if (_loaded) return;
     final json = await rootBundle.loadString('assets/verified_domains.json');

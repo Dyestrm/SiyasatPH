@@ -1,14 +1,17 @@
 import '../models/verdict.dart';
 import 'url_checker.dart';
 import 'urgency_detector.dart';
+import './bank_checker.dart';
 
 class RulesEngine {
   static final RulesEngine _instance = RulesEngine._internal();
   factory RulesEngine() => _instance;
   RulesEngine._internal();
 
+  // Singletons (objects declared once and reused)
   final UrlChecker _urlChecker = UrlChecker();
   final UrgencyDetector _urgencyDetector = UrgencyDetector();
+  final BankChecker _bankChecker = BankChecker();
 
   List<String> selectedBanks = [];
   String language = 'fil';
@@ -33,19 +36,11 @@ class RulesEngine {
       reasons.addAll(urlResult.reasons);
     }
 
-    // 3. Personalized bank check
-    if (selectedBanks.isNotEmpty) {
-      final lower = message.toLowerCase();
-      for (final bank in selectedBanks) {
-        if (lower.contains(bank.toLowerCase())) {
-          if (urlResult.isFlagged || urgencyResult.riskScore >= 55) {
-            score += 15;
-            reasons.add('Targets your bank: "$bank"');
-            break;
-          }
-        }
-      }
-    }
+    // 3. Bank Checker Matcher (full feature using verified_domains.json)
+    // TODO: Load selectedBanks from SharedPreferences / state management once setup screen is implemented by frontend team
+    final bankResult = await _bankChecker.check(message, selectedBanks, urlResult);
+    score += bankResult.riskScore;
+    reasons.addAll(bankResult.reasons);
 
     // 4. Clamp score to 100
     final clampedScore = score.clamp(0, 100);
