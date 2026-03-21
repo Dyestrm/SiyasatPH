@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import 'bank_setup_screen.dart';
-import './home_screen.dart';
+import 'home_screen.dart';
+
 
 class SetupChoiceScreen extends StatefulWidget {
   const SetupChoiceScreen({super.key});
@@ -50,9 +51,28 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
             ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // 
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: AppColors.textColorDark,
+                ),
+              ),
+
+              SizedBox(height: 4),
+              
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textColorGray,
+                ),
+              ),
             ],
           ),
         ),
