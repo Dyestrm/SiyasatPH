@@ -1,0 +1,48 @@
+const Map<String, Map<String, String>> appStrings = {
+  'en': {
+    // ---- settings page
+    'settings':              'Settings',
+    'section_language':      'LANGUAGE',
+    'section_data':          'DATA',
+    'section_notifications': 'NOTIFICATIONS',
+    'section_about':         'ABOUT',
+    'app_language':          'App Language',
+    'app_language_sub':      'Select your preferred language',
+    'auto_detect':           'Auto-detect SMS',
+    'auto_detect_sub':       'Scan SMS automatically',
+    'vibrate_scam':          'Vibrate on Scam',
+    'vibrate_scam_sub':      'Vibrate when scam is detected',
+    'update_patterns':       'Updates Patterns',
+    'last_update':           'Last update: March 20, 2026',
+    'updated_badge':         'Updated',
+    'version':               'Version 1.0.0',
+    'privacy_policy':        'Privacy Policy',
+    'privacy_policy_sub':    'Read our policy',
+    'send_feedback':         'Send Feedback',
+    'send_feedback_sub':     'Help us improve the app',
+    // ---- settings page END
+  },
+  'fil': {
+    // ---- settings page
+    'settings':              'Settings',
+    'section_language':      'WIKA',
+    'section_data':          'DATA',
+    'section_notifications': 'NOTIFICATIONS',
+    'section_about':         'TUNGKOL',
+    'app_language':          'Wika ng App',
+    'app_language_sub':      'Piliin ang iyong gustong wika',
+    'auto_detect':           'Auto-detect SMS',
+    'auto_detect_sub':       'Suriin ang SMS nang awtimatiko',
+    'vibrate_scam':          'Vibrate on Scam',
+    'vibrate_scam_sub':      'Mag-vibrate kapag may scam',
+    'update_patterns':       'I-update ang Patterns',
+    'last_update':           'Huling update: March 20, 2026',
+    'updated_badge':         'Updated',
+    'version':               'Bersyon 1.0.0',
+    'privacy_policy':        'Privacy Policy',
+    'privacy_policy_sub':    'Basahin ang aming patakaran',
+    'send_feedback':         'Magpadala ng Feedback',
+    'send_feedback_sub':     'Tulungan kaming mapabuti ang app',
+    // ---- settings page END
+  },
+};
