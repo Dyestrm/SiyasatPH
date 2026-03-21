@@ -188,6 +188,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
+                        isDismissible: true,
+                        enableDrag: true,
                         builder: (_) => ResultSheet(message: msg),
                       );
                     },
@@ -298,7 +300,10 @@ class ResultSheet extends StatelessWidget {
     final isScam = message.labelType == MessageLabel.scam;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return DraggableScrollableSheet(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.pop(context),
+      child: DraggableScrollableSheet(
       initialChildSize: 0.72,
       minChildSize: 0.4,
       maxChildSize: 0.95,
@@ -523,6 +528,7 @@ class ResultSheet extends StatelessWidget {
           ),
         );
       },
+    ),
     );
   }
 }
