@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
-import './setupBank_screen.dart';
+import 'bank_setup_screen.dart';
 import './home_screen.dart';
 
 class SetupChoiceScreen extends StatefulWidget {
