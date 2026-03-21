@@ -1,6 +1,9 @@
+import 'package:siyasat_ph/models/analysis_result.dart';
+import 'package:siyasat_ph/models/bank_check_result.dart';
 import '../models/verdict.dart';
 import 'url_checker.dart';
 import 'urgency_detector.dart';
+import 'spam_detector.dart';
 import './bank_checker.dart';
 
 class RulesEngine {
@@ -11,6 +14,7 @@ class RulesEngine {
   // Singletons (objects declared once and reused)
   final UrlChecker _urlChecker = UrlChecker();
   final UrgencyDetector _urgencyDetector = UrgencyDetector();
+  final SpamDetector _spamDetector = SpamDetector();
   final BankChecker _bankChecker = BankChecker();
 
   List<String> selectedBanks = [];
@@ -18,44 +22,16 @@ class RulesEngine {
 
   Future<Verdict> analyze(String message, String senderNumber) async {
     final reasons = <String>[];
-    int score = 0;
+    final results = await _runAllDetectors(message);
 
-    // 1. Urgency detection (uses PatternRepository internally)
-    final urgencyResult = await _urgencyDetector.analyze(message);
-    score += urgencyResult.riskScore;
-    if (urgencyResult.triggeredPhrases.isNotEmpty) {
-      for (final phrase in urgencyResult.triggeredPhrases) {
-        reasons.add('Urgency language: "$phrase"');
-      }
-    }
+    _addReasonsFromResults(reasons, results);
 
-    // 2. URL lookalike check
-    final urlResult = await _urlChecker.check(message);
-    if (urlResult.isFlagged) {
-      score += 30;
-      reasons.addAll(urlResult.reasons);
-    }
+    final totalScore = _calculateTotalScore(results);
+    final clampedScore = totalScore.clamp(0, 100);
 
-    // 3. Bank Checker Matcher (full feature using verified_domains.json)
-    // TODO: Load selectedBanks from SharedPreferences / state management once setup screen is implemented by frontend team
-    final bankResult = await _bankChecker.check(message, selectedBanks, urlResult);
-    score += bankResult.riskScore;
-    reasons.addAll(bankResult.reasons);
+    final level = _determineRiskLevel(results, clampedScore);
 
-    // 4. Clamp score to 100
-    final clampedScore = score.clamp(0, 100);
-
-    // 5. Determine verdict level
-    final level = clampedScore >= 82
-        ? RiskLevel.likelyScam
-        : clampedScore >= 55
-            ? RiskLevel.suspicious
-            : RiskLevel.safe;
-
-    // 6. Get explanation in user's language
-    final explanation = urgencyResult.explanation != null && language == 'eng'
-        ? urgencyResult.explanation!
-        : _getExplanation(level);
+    final explanation = _getExplanation(level);
 
     return Verdict(
       level: level,
@@ -66,11 +42,68 @@ class RulesEngine {
     );
   }
 
+  Future<_DetectorResults> _runAllDetectors(String message) async {
+    final urlResult = await _urlChecker.check(message);
+    return _DetectorResults(
+      spam: await _spamDetector.analyze(message),
+      urgency: await _urgencyDetector.analyze(message),
+      url: urlResult,
+      bank: await _bankChecker.check(message, selectedBanks, urlResult),
+    );
+  }
+
+  void _addReasonsFromResults(List<String> reasons, _DetectorResults results) {
+    if (results.spam.triggeredPhrases.isNotEmpty) {
+      for (final phrase in results.spam.triggeredPhrases) {
+        reasons.add('Spam urgency: "$phrase"');
+      }
+    }
+    if (results.urgency.triggeredPhrases.isNotEmpty) {
+      for (final phrase in results.urgency.triggeredPhrases) {
+        reasons.add('Urgency language: "$phrase"');
+      }
+    }
+    if (results.url.isFlagged) {
+      reasons.addAll(results.url.reasons);
+    }
+    reasons.addAll(results.bank.reasons);
+  }
+
+  int _calculateTotalScore(_DetectorResults results) {
+    int score = results.spam.riskScore + results.urgency.riskScore + results.bank.riskScore;
+    if (results.url.isFlagged) score += 35;
+    return score;
+  }
+
+  RiskLevel _determineRiskLevel(_DetectorResults results, int clampedScore) {
+    if (results.spam.riskScore >= 35 && !results.url.isFlagged) {
+      return RiskLevel.spam;
+    }
+    if (results.url.isFlagged && results.urgency.riskScore >= 20) {
+      return RiskLevel.likelyScam;
+    }
+    if (results.urgency.riskScore >= 78) {
+      return RiskLevel.likelyScam;
+    }
+    if (clampedScore >= 55) {
+      return RiskLevel.suspicious;
+    }
+    if (results.spam.riskScore >= 35) {
+      return RiskLevel.spam;
+    }
+    return RiskLevel.safe;
+  }
+
   String _getExplanation(RiskLevel level) {
     if (level == RiskLevel.safe) {
       return language == 'fil'
           ? 'Walang nakitang kahina-hinalang bahagi sa mensaheng ito.'
           : 'No suspicious elements found in this message.';
+    }
+    if (level == RiskLevel.spam) {
+      return language == 'fil'
+          ? 'Ito ay promotional spam. Maaari itong i-ignore nang ligtas.'
+          : 'This appears to be promotional spam. It can be safely ignored.';
     }
     if (level == RiskLevel.suspicious) {
       return language == 'fil'
@@ -81,4 +114,19 @@ class RulesEngine {
         ? 'Ito ay posibleng scam. Huwag sundin ang mga tagubilin. Huwag magbigay ng personal na impormasyon.'
         : 'This is likely a scam. Do not follow the instructions or give personal information.';
   }
+}
+
+// Private helper class to keep analyze() short and readable
+class _DetectorResults {
+  final AnalysisResult spam;
+  final AnalysisResult urgency;
+  final UrlCheckResult url;
+  final BankCheckResult bank;
+
+  _DetectorResults({
+    required this.spam,
+    required this.urgency,
+    required this.url,
+    required this.bank,
+  });
 }
