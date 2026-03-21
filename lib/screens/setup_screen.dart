@@ -36,9 +36,12 @@ Future<void> _showAddBankDialog(
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppColors.white,
+    backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    constraints: BoxConstraints(
+      minHeight: MediaQuery.of(context).size.height * 0.5,//height of modal
     ),
     builder: (_) => _AddBankSheet(banks: banks, onUpdate: onUpdate),
   );
@@ -106,28 +109,32 @@ class _AddBankSheetState extends State<_AddBankSheet> {
           const SizedBox(height: 16),
 
           //preset chips
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 6, 
             children: _presets.map((bank) {
               final isAdded = widget.banks.contains(bank);
               return GestureDetector(
                 onTap: isAdded ? null : () => _addBank(bank),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: isAdded ? AppColors.primaryTeal : AppColors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isAdded ? AppColors.primaryTeal : AppColors.lightGrey,
+                      color: isAdded ? AppColors.primaryTeal : const Color(0xFFDDDDDD),
                     ),
                   ),
                   child: Text(
                     bank,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: isAdded ? AppColors.white : AppColors.textGrey,
+                      color: isAdded ? AppColors.white : AppColors.textColorGray,
                     ),
                   ),
                 ),
