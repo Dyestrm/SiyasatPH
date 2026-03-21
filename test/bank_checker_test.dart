@@ -32,7 +32,7 @@ void main() {
       expect(res.riskScore, 35);
     });
 
-    /* This test fails because the risk score is supposed to be 35 
+    /*NOTE: This test fails because the risk score is supposed to be 35 
       but PBN is not included in verified_domain.json
       the checker ignores it and gives a risk score of 0.
 
