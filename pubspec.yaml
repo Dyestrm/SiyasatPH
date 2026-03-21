@@ -60,6 +60,12 @@ flutter:
     - assets/verified_domains.json
     - assets/images/siyasat_logo.svg
     - assets/images/siyasat_logo.png
+    - assets/images/onboarding2.png
+    - assets/images/onboarding3.png
+    - assets/images/onboarding3.1.png
+    - assets/images/onboarding3.2.png
+    - assets/images/onboarding4.png
+
 
 
   # To add assets to your application, add an assets section, like this:
