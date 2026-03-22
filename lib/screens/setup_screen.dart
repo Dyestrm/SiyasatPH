@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
-import '../widgets/bottom_nav.dart';
 
 //data model
 class UserProfile {
@@ -155,9 +154,7 @@ class SetupScreen extends StatefulWidget {
   State<SetupScreen> createState() => _SetupScreenState();
 }
 
-// navbar index 2 = setup
 class _SetupScreenState extends State<SetupScreen> {
-  int _currentIndex = 2;
 
   UserProfile _profile = const UserProfile(
     name: 'Mary Dawn Alido',
@@ -348,10 +345,6 @@ class _SetupScreenState extends State<SetupScreen> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }

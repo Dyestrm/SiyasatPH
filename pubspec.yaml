@@ -61,15 +61,7 @@ flutter:
     - assets/scam_patterns.json
     - assets/spam_patterns.json
     - assets/verified_domains.json
-    - assets/images/siyasat_logo.svg
-    - assets/images/siyasat_logo.png
-    - assets/images/onboarding2.png
-    - assets/images/onboarding3.png
-    - assets/images/onboarding3.1.png
-    - assets/images/onboarding3.2.png
-    - assets/images/onboarding4.png
-    - assets/images/landing_page_logo.png
-    # - assets/images/
+    - assets/images/
 
 
 
