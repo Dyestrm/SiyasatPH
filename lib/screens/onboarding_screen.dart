@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import 'choice_setup_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({
@@ -137,11 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/onboarding2.svg',
-              width: double.infinity,
-              fit: BoxFit.contain,
-            ),
+            SvgPicture.asset('assets/images/onboarding2.svg', width: double.infinity, fit: BoxFit.contain),
 
             SizedBox(height: 24),
 
@@ -181,7 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/images/onboarding3.svg', width: double.infinity, fit: BoxFit.contain),
+            SvgPicture.asset('assets/images/onboarding3.svg', width: double.infinity, fit: BoxFit.contain),
 
           SizedBox(height: 24),
 
@@ -200,9 +197,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
           ),
 
           SizedBox(height: 16),
-          Image.asset('assets/images/onboarding3.1.svg', width: double.infinity, fit: BoxFit.contain),
+            SvgPicture.asset('assets/images/onboarding3.1.svg', width: double.infinity, fit: BoxFit.contain),
           SizedBox(height: 8),
-          Image.asset('assets/images/onboarding3.2.svg', width: double.infinity, fit: BoxFit.contain),
+            SvgPicture.asset('assets/images/onboarding3.2.svg', width: double.infinity, fit: BoxFit.contain),
         ],
       ),
     );
@@ -215,7 +212,7 @@ Widget _buildPage4() {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset('assets/images/onboarding4.svg', width: double.infinity, fit: BoxFit.contain),
+        SvgPicture.asset('assets/images/onboarding4.svg', width: double.infinity, fit: BoxFit.contain),
         SizedBox(height: 24),
         
         Text(
