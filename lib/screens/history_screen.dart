@@ -6,6 +6,7 @@ import '../models/verdict.dart';
 
 //data model
 enum MessageLabel { scam, ingat, ligtas }
+enum FilterType { all, scam, spam, suspicious, ligtas }
 
 Color labelColor(MessageLabel type) {
   switch (type) {
@@ -33,12 +34,9 @@ String _getVerdictDisplayName(RiskLevel level) {
 
 IconData _getVerdictIcon(RiskLevel level) {
   switch (level) {
-    case RiskLevel.safe:
-      return Icons.done_all_rounded;
-    case RiskLevel.suspicious:
-      return Icons.error_outline;
-    default:
-      return Icons.clear_rounded;
+    case RiskLevel.safe: return Icons.done_all_rounded;
+    case RiskLevel.suspicious: return Icons.error_outline;
+    default: return Icons.clear_rounded;
   }
 }
 
@@ -64,10 +62,9 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  int _selectedFilter = 0; // 0=All, 1=Scam, 2=Kahina-hinala, 3=Ligtas
-
-  final List<String> _filters = ['All', 'Scam', 'Kahina-hinala', 'Ligtas'];
-
+  FilterType _selectedFilter = FilterType.all; // Replaced magic numbers with enum
+  final List<String> _filters = ['All', 'Scam', 'Spam', 'Kahina-hinala', 'Ligtas'];
+  
   List<HistoryEntry> _entries = [];
   final HistoryRepository _repo = HistoryRepository();
 
@@ -94,11 +91,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   List<HistoryEntry> get _filteredEntries {
-    if (_selectedFilter == 0) return _entries;
-    if (_selectedFilter == 1) {
-      return _entries.where((e) => e.result.level == RiskLevel.spam || e.result.level == RiskLevel.likelyScam).toList();
+    if (_selectedFilter == FilterType.all) return _entries;
+    if (_selectedFilter == FilterType.scam) {
+      return _entries.where((e) => e.result.level == RiskLevel.likelyScam).toList();
     }
-    if (_selectedFilter == 2) {
+    if (_selectedFilter == FilterType.spam) {
+      return _entries.where((e) => e.result.level == RiskLevel.spam).toList();
+    }
+    if (_selectedFilter == FilterType.suspicious) {
       return _entries.where((e) => e.result.level == RiskLevel.suspicious).toList();
     }
     return _entries.where((e) => e.result.level == RiskLevel.safe).toList();
@@ -159,9 +159,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 itemCount: _filters.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final selected = _selectedFilter == index;
+                  final selected = _selectedFilter == FilterType.values[index];
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedFilter = index),
+                    onTap: () => setState(() => _selectedFilter = FilterType.values[index]),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
