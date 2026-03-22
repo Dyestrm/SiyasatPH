@@ -21,6 +21,17 @@ const Map<String, Map<String, String>> appStrings = {
     'send_feedback':         'Send Feedback',
     'send_feedback_sub':     'Help us improve the app',
     // ---- settings page END
+
+    // ---- notification permission page
+    'permission_title':       'Allow SiyasatPH',
+    'permission_subtitle':    'To scan SMS messages, SiyasatPH needs permission to read notifications.',
+    'notification_access':    'Notification Access',
+    'notification_access_sub': 'To read SMS notifications',
+    'permission_info':        'We don\'t read your messages. Only the notification text is analyzed - never saved.',
+    'enable_button':          'Enable Notification Access',
+    'skip_button':            'Do it Later',
+    'settings_path':          'Settings → Notifications → Notification Access → SiyasatPH',
+    // ---- notification permission page END
   },
   'fil': {
     // ---- settings page
@@ -44,5 +55,16 @@ const Map<String, Map<String, String>> appStrings = {
     'send_feedback':         'Magpadala ng Feedback',
     'send_feedback_sub':     'Tulungan kaming mapabuti ang app',
     // ---- settings page END
+
+    // ---- notification permission page
+    'permission_title':       'Payagan ang SiyasatPH',
+    'permission_subtitle':    'Para suriin ang SMS, kailangan ng pahintulot na basahin ang notification.',
+    'notification_access':    'Notification Access',
+    'notification_access_sub': 'Para mabasa ang SMS notifications',
+    'permission_info':        'Hindi namin binabasa ang iyong mga mensahe. Ang notification text lamang ang ginagamit - hindi ko isasave kailanman.',
+    'enable_button':          'I-enable ang Notification Access',
+    'skip_button':            'Gawin mamaya',
+    'settings_path':          'Settings → Notifications → Notification Access → SiyasatPH',
+    // ---- notification permission page END
   },
 };
