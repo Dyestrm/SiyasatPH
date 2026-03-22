@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/bottom_nav.dart';
 import '../theme/colors.dart';
 
 //data model
@@ -74,7 +73,6 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   int _selectedFilter = 0; // 0=All, 1=Scam, 2=Kahina-hinala, 3=Ligtas
-  int _currentIndex = 1; // 0=Suriin, 1=Kasaysayan, 2=Setup, 3=Settings
 
   final List<String> _filters = ['All', 'Scam', 'Kahina-hinala', 'Ligtas'];
 
@@ -199,10 +197,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }

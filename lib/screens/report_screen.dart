@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
-import '../widgets/bottom_nav.dart';
 
 class ReportScreen extends StatefulWidget {
   final String senderNumber;
@@ -23,7 +22,6 @@ class ReportScreen extends StatefulWidget {
 class _ReportNtcScreenState extends State<ReportScreen> {
   final _commentController = TextEditingController();
   String? _uploadedFileName;
-  int _currentIndex = 3;
 
   @override
   void dispose() {
@@ -252,10 +250,6 @@ class _ReportNtcScreenState extends State<ReportScreen> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }
