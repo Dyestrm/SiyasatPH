@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:siyasat_ph/screens/verdict_screen.dart';
+import 'package:siyasat_ph/services/analysis_service.dart';
 import 'package:siyasat_ph/theme/colors.dart';
+import '../models/verdict.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,25 +24,33 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _onScanTapped() {
+  Future<void> _onScanTapped() async {
     final String message = _messageController.text.trim();
     if (message.isEmpty) return;
 
-    // TODO: Integrate your RulesEngine here
-    print("Scanning message: $message from: ${_senderController.text}");
+    final String sender = _senderController.text.trim();
 
-    // nav logic (ensure VerdictScreen is imported)
-    /*
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => VerdictScreen(
-          message: message,
-          sender: _senderController.text.trim(),
-        ),
-      ),
+    print("Scanning message: $message from: $sender");
+
+    final verdict = await AnalysisService().analyzeMessage(
+      message,
+      sender,
+      // setup: will be passed later when Family Setup is integrated
     );
-    */
+
+    final scanResult = verdict.toScanResult(
+      originalMessage: message,
+      sender: sender,
+    );
+
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VerdictScreen(result: scanResult),
+        ),
+      );
+    }
   }
 
   @override

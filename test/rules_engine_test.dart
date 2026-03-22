@@ -28,12 +28,12 @@ void main() {
       expect(verdict.reasons.any((r) => r.contains('Spam urgency')), true);
     });
 
-    test('Normal message → RiskLevel.safe', () async {
+    test('suspicious', () async {
       final verdict = await engine.analyze(
-        "Hello po, kumusta ka? Tara kain tayo mamaya.",
+        "May important update po sa inyong account. Tingnan ang link: https://bit.ly/account-notice-2025",
         "09171234567",
       );
-      expect(verdict.level, RiskLevel.safe);
+      expect(verdict.level, RiskLevel.suspicious);
     });
 
     test('Empty message → safe', () async {
