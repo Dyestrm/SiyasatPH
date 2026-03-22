@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import 'choice_setup_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({
@@ -137,12 +138,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/onboarding2.png',
-              width: double.infinity,
+            SvgPicture.asset(
+              'assets/images/onboarding2.svg',
+              height: 200,
               fit: BoxFit.contain,
             ),
-
             SizedBox(height: 24),
 
             Text(
@@ -176,37 +176,32 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
 
   // ---- page 3
   Widget _buildPage3() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('assets/images/onboarding3.png', width: double.infinity, fit: BoxFit.contain),
-
-          SizedBox(height: 24),
-
-          Text(
-            'Aabisuhan ang iyong pamilya',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textColorDark),
-          ),
-
-          SizedBox(height: 13),
-
-          Text(
-            'Kapag may nakitang scam, awtomatikong maabisuhan ang iyong piling miyembro ng pamilya - kasama ang dahilan at timestamp.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: AppColors.textColorGray),
-          ),
-
-          SizedBox(height: 16),
-          Image.asset('assets/images/onboarding3.1.png', width: double.infinity, fit: BoxFit.contain),
-          SizedBox(height: 8),
-          Image.asset('assets/images/onboarding3.2.png', width: double.infinity, fit: BoxFit.contain),
-        ],
-      ),
-    );
-  }
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 32),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset('assets/images/onboarding3.svg', height: 190, fit: BoxFit.contain),
+        SizedBox(height: 16),
+        Text(
+          'Aabisuhan ang iyong pamilya',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textColorDark),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Kapag may nakitang scam, awtomatikong maabisuhan ang iyong piling miyembro ng pamilya - kasama ang dahilan at timestamp.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 13, color: AppColors.textColorGray),
+        ),
+        SizedBox(height: 12),
+        SvgPicture.asset('assets/images/onboarding3.1.svg', height: 72, fit: BoxFit.contain),
+        SizedBox(height: 6),
+        SvgPicture.asset('assets/images/onboarding3.2.svg', height: 72, fit: BoxFit.contain),
+      ],
+    ),
+  );
+}
 
 // ---- page 4
 Widget _buildPage4() {
@@ -215,7 +210,11 @@ Widget _buildPage4() {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset('assets/images/onboarding4.png', width: double.infinity, fit: BoxFit.contain),
+            SvgPicture.asset(
+          'assets/images/onboarding4.svg',
+          height: 200,
+          fit: BoxFit.contain,
+        ),
         SizedBox(height: 24),
         
         Text(
