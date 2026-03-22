@@ -1,4 +1,6 @@
-enum RiskLevel { safe, spam, suspicious, likelyScam }
+import 'package:siyasat_ph/screens/verdict_screen.dart';
+
+enum RiskLevel { safe, suspicious, likelyScam, spam }
 
 class Verdict {
   final RiskLevel level;
@@ -32,4 +34,31 @@ class Verdict {
     'senderNumber': senderNumber,
     'timestamp': timestamp.toIso8601String(),
   };
+}
+extension VerdictToScanResult on Verdict {
+  ScanResult toScanResult({
+    required String originalMessage,
+    required String sender,
+  }) {
+    final VerdictType uiVerdict = switch (level) {
+      RiskLevel.safe       => VerdictType.safe,
+      RiskLevel.suspicious => VerdictType.suspicious,
+      RiskLevel.likelyScam       => VerdictType.scam,
+      RiskLevel.spam       => VerdictType.spam,
+    };
+
+    final List<FlagItem> flags = reasons.map((reason) => FlagItem(
+          label: 'BAKIT NA FLAG',
+          title: '',
+          body: reason,
+        )).toList();
+
+    return ScanResult(
+      verdict: uiVerdict,
+      message: originalMessage,
+      sender: sender,
+      flags: flags,
+      tags: const [],
+    );
+  }
 }

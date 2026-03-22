@@ -3,7 +3,7 @@ import 'package:siyasat_ph/theme/colors.dart';
 import 'package:siyasat_ph/models/verdict.dart';
 import 'package:flutter/services.dart';
 
-enum VerdictType { safe, suspicious, scam}
+enum VerdictType { safe, suspicious, scam, spam }
 
 class FlagItem{
   final String label;
@@ -36,7 +36,7 @@ class VerdictScreen extends StatelessWidget {
 
   const VerdictScreen({super.key, required this.result});
 
-  //style per veridtc
+//style per veridtc
 _VStyle get _style {
     return switch (result.verdict) {
       VerdictType.safe => const _VStyle(
@@ -68,6 +68,16 @@ _VStyle get _style {
           desc: 'Huwag sundin ang mga nakasaad.\nIto ay malamang na isang scam.',
           flagBorder: AppColors.sunsetOrange,
           flagLabelColor: AppColors.textDarkRed,
+        ),
+      VerdictType.spam => const _VStyle(
+          cardBg: AppColors.lightCream,
+          iconBg: AppColors.sunsetOrange,
+          icon: Icons.clear_rounded,
+          label: 'Spam',
+          labelColor: AppColors.sunsetOrange,
+          desc: 'Ito ay promotional spam.\nMaaari itong i-ignore nang ligtas.',
+          flagBorder: AppColors.sunsetOrange,
+          flagLabelColor: AppColors.sunsetOrange,
         ),
     };
   }
@@ -270,7 +280,11 @@ _VStyle get _style {
   Widget _buildButtons(BuildContext ctx) {
     switch (result.verdict) {
       case VerdictType.safe:
-        return _outlinedBtn(label: 'Suriin ang iba pa', onTap: () => Navigator.pop(ctx));
+        return _outlinedBtn(
+          label: 'Suriin ang iba pa',
+          onTap: () => Navigator.pop(ctx),
+        );
+
       case VerdictType.suspicious:
         return Column(
           children: [
@@ -278,54 +292,63 @@ _VStyle get _style {
               /* insert alert family logic */
             }),
             const SizedBox(height: 10),
-            _outlinedBtn(label: 'Suriin ang iba pa', onTap: () => Navigator.pop(ctx)),
-          ],
-        );
-      case VerdictType.scam:
-        return Column(
-          children: [
-            _filledBtn('Sabihan ang Pamilya', onTap: () {
-              /* insert alert family logic */
-            }),
-            const SizedBox(height: 10),
-            _outlinedBtn(label: 
-              'I-report sa NTC',
-              color: AppColors.textDarkRed,
-              backgroundColor: AppColors.paleBlush,
-              onTap: () {
-                /* insert NTC report logic */
-              },
-            ),
-            const SizedBox(height: 10),
             _outlinedBtn(
-              label: 'Kopyahin ang Detalye',
-              onTap: () => Clipboard.setData(ClipboardData(text: result.message)),
+              label: 'Suriin ang iba pa',
+              onTap: () => Navigator.pop(ctx),
             ),
           ],
         );
+
+      // Both scam and spam show the full danger buttons (NTC report + copy)
+      case VerdictType.scam:
+      case VerdictType.spam:
+      return _buildDangerButtons(ctx);
     }
   }
 
+  // Private helper to avoid duplication between scam and spam
+  Widget _buildDangerButtons(BuildContext ctx) => Column(
+    children: [
+      _filledBtn('Sabihan ang Pamilya', onTap: () {
+        /* insert alert family logic */
+      }),
+      const SizedBox(height: 10),
+      _outlinedBtn(
+        label: 'I-report sa NTC',
+        color: AppColors.textDarkRed,
+        backgroundColor: AppColors.paleBlush,
+        onTap: () {
+          /* insert NTC report logic */
+        },
+      ),
+      const SizedBox(height: 10),
+      _outlinedBtn(
+        label: 'Kopyahin ang Detalye',
+        onTap: () => Clipboard.setData(ClipboardData(text: result.message)),
+      ),
+    ],
+  );
+
   //filled button builder
   Widget _filledBtn(String label, {required VoidCallback onTap}) => SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: ElevatedButton(
-          onPressed: onTap,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.darkTeal,
-            foregroundColor: AppColors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12),
-          ),
+    width: double.infinity,
+    height: 48,
+    child: ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.darkTeal,
+        foregroundColor: AppColors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-      );
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12),
+      ),
+    ),
+  );
 
   Widget _outlinedBtn({
     required String label,

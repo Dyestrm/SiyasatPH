@@ -66,14 +66,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'SiyasatPH - Scam Detection Active\n\nNotification listener is running in the background.',
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+      home: LandingScreen(),
     );
   }
 }

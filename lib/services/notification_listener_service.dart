@@ -131,6 +131,8 @@ class NotificationListenerService {
     switch (level) {
       case RiskLevel.safe:
         return '✅ Safe';
+      case RiskLevel.spam:
+        return '⚠️ Spam';
       case RiskLevel.suspicious:
         return '⚠️ Suspicious';
       case RiskLevel.likelyScam:
