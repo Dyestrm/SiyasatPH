@@ -1,31 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../widgets/bottom_nav.dart';
-
-//data model
-class UserProfile {
-  final String name;
-  final String contactNumber;
-  final List<String> banks;
-
-  const UserProfile({
-    required this.name,
-    required this.contactNumber,
-    required this.banks,
-  });
-}
-
-class FamilyMember {
-  final String name;
-  final String contactNumber;
-  final List<String> banks;
-
-  const FamilyMember({
-    required this.name,
-    required this.contactNumber,
-    required this.banks,
-  });
-}
+import '../services/family_setup_service.dart';
+import '../models/family_setup_model.dart';
 
 //add bank modal
 Future<void> _showAddBankDialog(
@@ -41,10 +18,35 @@ Future<void> _showAddBankDialog(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     constraints: BoxConstraints(
-      minHeight: MediaQuery.of(context).size.height * 0.5,//height of modal
+      minHeight: MediaQuery.of(context).size.height * 0.5, //height of modal
     ),
     builder: (_) => _AddBankSheet(banks: banks, onUpdate: onUpdate),
   );
+}
+
+// local model
+class FamilyMember {
+  final String name;
+  final String contactNumber;
+  final List<String> banks;
+
+  const FamilyMember({
+    required this.name,
+    required this.contactNumber,
+    required this.banks,
+  });
+}
+
+class UserProfile {
+  final String name;
+  final String contactNumber;
+  final List<String> banks;
+
+  const UserProfile({
+    required this.name,
+    required this.contactNumber,
+    required this.banks,
+  });
 }
 
 class _AddBankSheet extends StatefulWidget {
@@ -58,8 +60,20 @@ class _AddBankSheet extends StatefulWidget {
 }
 
 class _AddBankSheetState extends State<_AddBankSheet> {
-  final _presets = ['BDO', 'Unionbank','GCash', 
-  'PhilHealth', 'BPI', 'Metrobank', 'Maya', 'Landbank', 'PNB', 'SSS', 'GSIS', 'Pag-IBIG'];
+  final _presets = [
+    'BDO',
+    'Unionbank',
+    'GCash',
+    'PhilHealth',
+    'BPI',
+    'Metrobank',
+    'Maya',
+    'Landbank',
+    'PNB',
+    'SSS',
+    'GSIS',
+    'Pag-IBIG',
+  ];
 
   @override
   void dispose() {
@@ -115,7 +129,7 @@ class _AddBankSheetState extends State<_AddBankSheet> {
             physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 6, 
+            childAspectRatio: 6,
             children: _presets.map((bank) {
               final isAdded = widget.banks.contains(bank);
               return GestureDetector(
@@ -126,7 +140,9 @@ class _AddBankSheetState extends State<_AddBankSheet> {
                     color: isAdded ? AppColors.primaryTeal : AppColors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isAdded ? AppColors.primaryTeal : const Color(0xFFDDDDDD),
+                      color: isAdded
+                          ? AppColors.primaryTeal
+                          : const Color(0xFFDDDDDD),
                     ),
                   ),
                   child: Text(
@@ -134,7 +150,9 @@ class _AddBankSheetState extends State<_AddBankSheet> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: isAdded ? AppColors.white : AppColors.textColorGray,
+                      color: isAdded
+                          ? AppColors.white
+                          : AppColors.textColorGray,
                     ),
                   ),
                 ),
@@ -159,27 +177,39 @@ class SetupScreen extends StatefulWidget {
 class _SetupScreenState extends State<SetupScreen> {
   int _currentIndex = 2;
 
-  UserProfile _profile = const UserProfile(
-    name: 'Mary Dawn Alido',
-    contactNumber: '+63 123 456 7890',
-    banks: ['BDO', 'GCash', 'PhilHealth'],
-  );
+  // service for loading and saving setup
+  final _setupService = FamilySetupService();
 
-  List<FamilyMember> _familyMembers = [
-      const FamilyMember(
-      name: 'Lola Giya',
-      contactNumber: '+63 123 456 7890',
-      banks: ['BDO', 'GCash', 'PhilHealth'],
-    ),
-  ];
+  // loaded setup from local storage or Firestore
+  FamilySetupModel? _setup;
 
+  // tracks loading state
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // load setup when screen opens
+    _loadSetup();
+  }
+
+  // loads setup from local storage first, Firestore as fallback
+  Future<void> _loadSetup() async {
+    final setup = await _setupService.getSetup();
+    setState(() {
+      _setup = setup;
+      _loading = false;
+    });
+  }
+
+  // generates initials from full name for avatar
   String _initials(String name) {
     final parts = name.trim().split(' ');
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 
-  // header
+  // appbar
   AppBar _buildAppBar() => AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -200,43 +230,28 @@ class _SetupScreenState extends State<SetupScreen> {
         ),
       );
 
+  // opens edit profile screen and refreshes setup after returning
   void _openEditProfile() async {
-    final updated = await Navigator.push<UserProfile>(
+    if (_setup == null) return;
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => EditProfileScreen(profile: _profile),
+        builder: (_) => EditProfileScreen(setup: _setup!),
       ),
     );
-    if (updated != null) setState(() => _profile = updated);
-  }
-
-  void _openAddFamilyMember() async {
-    final result = await Navigator.push<FamilyMember>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AddFamilyMemberScreen(),
-      ),
-    );
-    if (result != null) setState(() => _familyMembers.add(result));
-  }
-
-  void _openEditFamilyMember(int index) async {
-    final result = await Navigator.push<dynamic>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => EditFamilyMemberScreen(member: _familyMembers[index]),
-      ),
-    );
-    if (result == null) return;
-    if (result == 'deleted') {
-      setState(() => _familyMembers.removeAt(index));
-    } else if (result is FamilyMember) {
-      setState(() => _familyMembers[index] = result);
-    }
+    // reload setup after editing
+    _loadSetup();
   }
 
   @override
   Widget build(BuildContext context) {
+    // show loading spinner while fetching setup
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bgOffWhite,
       appBar: _buildAppBar(),
@@ -246,7 +261,8 @@ class _SetupScreenState extends State<SetupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //my profile section
+
+              // my profile section
               const Text(
                 'My Profile',
                 style: TextStyle(
@@ -256,77 +272,22 @@ class _SetupScreenState extends State<SetupScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              _ProfileCard(
-                initials: _initials(_profile.name),
-                name: _profile.name,
-                contactNumber: _profile.contactNumber,
-                onEdit: _openEditProfile,
-              ),
+
+              // show profile card if setup exists, otherwise show placeholder
+              _setup != null
+                  ? _ProfileCard(
+                      initials: _initials(_setup!.userName),
+                      name: _setup!.userName,
+                      contactNumber: _setup!.notifyContact ?? 'No contact set',
+                      onEdit: _openEditProfile,
+                    )
+                  : const Text(
+                      'No profile set up yet.',
+                      style: TextStyle(color: AppColors.textGrey),
+                    ),
               const SizedBox(height: 15),
 
-              //family member section
-              const Text(
-                'Family Member',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textGrey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ..._familyMembers.asMap().entries.map((entry) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _ProfileCard(
-                      initials: _initials(entry.value.name),
-                      name: entry.value.name,
-                      contactNumber: entry.value.contactNumber,
-                      onEdit: () => _openEditFamilyMember(entry.key),
-                    ),
-                  )),
-              const SizedBox(height: 10),
-
-              //add fam member button
-              GestureDetector(
-                onTap: _openAddFamilyMember,
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.primaryTeal,
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add, size: 18, color: AppColors.primaryTeal),
-                      SizedBox(width: 6),
-                      Text(
-                        'Add Family Member',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryTeal,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              //info banner - under add family member section
+              // info banner
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
@@ -462,10 +423,11 @@ class _ProfileCard extends StatelessWidget {
 }
 
 //edit profile screen
+// edit profile screen — receives current setup and saves changes
 class EditProfileScreen extends StatefulWidget {
-  final UserProfile profile;
+  final FamilySetupModel setup;   // receives current setup instead of UserProfile
 
-  const EditProfileScreen({super.key, required this.profile});
+  const EditProfileScreen({super.key, required this.setup});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -476,12 +438,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _contactController;
   late List<String> _banks;
 
+  // service for saving updated setup
+  final _setupService = FamilySetupService();
+  bool _saving = false;
+
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.profile.name);
-    _contactController = TextEditingController(text: widget.profile.contactNumber);
-    _banks = List.from(widget.profile.banks);
+    // pre-fill fields with existing setup data
+    _nameController = TextEditingController(text: widget.setup.userName);
+    _contactController = TextEditingController(text: widget.setup.notifyContact ?? '');
+    _banks = List.from(widget.setup.selectedBanks);
   }
 
   @override
@@ -491,7 +458,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  //appbar for edit profile screen
   AppBar _buildAppBar(BuildContext ctx) => AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -552,26 +518,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
-                'Name',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textColorGray,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+
+              // name field
+              const Text('Name',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textColorGray,
+                      fontWeight: FontWeight.w500)),
               const SizedBox(height: 6),
               _InputField(controller: _nameController),
-
               const SizedBox(height: 16),
-              Text(
-                'Contact Number',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textColorGray,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+
+              // contact field
+              const Text('Contact Number',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textColorGray,
+                      fontWeight: FontWeight.w500)),
               const SizedBox(height: 6),
               _InputField(
                 controller: _contactController,
@@ -579,14 +542,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              const Text(
-                'My Banks / Benefits',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textColorGray,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              // banks section
+              const Text('My Banks / Benefits',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textColorGray,
+                      fontWeight: FontWeight.w500)),
               const SizedBox(height: 10),
               _BankChips(
                 banks: _banks,
@@ -599,17 +560,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 28),
 
+              // save button — saves updated setup via service
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(
-                    context,
-                    UserProfile(
-                      name: _nameController.text,
-                      contactNumber: _contactController.text,
-                      banks: _banks,
-                    ),
-                  ),
+                  onPressed: _saving ? null : () async {
+                    setState(() => _saving = true);
+
+                    // save updated setup — keeps all other fields the same
+                    await _setupService.saveSetup(
+                      userName: _nameController.text,
+                      setupType: widget.setup.setupType,
+                      selectedBanks: _banks,
+                      selectedGovernments: widget.setup.selectedGovernments,
+                      selectedTelcos: widget.setup.selectedTelcos,
+                      language: widget.setup.language,
+                      notifyName: widget.setup.notifyName,
+                      notifyContact: _contactController.text.isEmpty
+                          ? null
+                          : _contactController.text,
+                      elderEmail: widget.setup.elderEmail,
+                      elderContact: widget.setup.elderContact,
+                      elderAddress: widget.setup.elderAddress,
+                    );
+
+                    setState(() => _saving = false);
+
+                    // go back to setup screen
+                    if (context.mounted) Navigator.pop(context);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryTeal,
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -618,9 +597,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'I-save ang mga pagbabago',
-                    style: TextStyle(
+                  child: Text(
+                    _saving ? 'Saving...' : 'I-save ang mga pagbabago',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -630,6 +609,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 12),
 
+              // cancel button — goes back without saving
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -652,7 +632,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 32),
             ],
           ),
@@ -682,7 +661,9 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.member.name);
-    _contactController = TextEditingController(text: widget.member.contactNumber);
+    _contactController = TextEditingController(
+      text: widget.member.contactNumber,
+    );
     _banks = List.from(widget.member.banks);
   }
 
@@ -695,46 +676,46 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
 
   //appbar for edit family member screen
   AppBar _buildAppBar(BuildContext ctx) => AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        centerTitle: true,
-        toolbarHeight: 60,
-        leadingWidth: 100,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(ctx),
-            child: const Row(
-              children: [
-                Icon(Icons.arrow_back, size: 18, color: AppColors.primaryTeal),
-                SizedBox(width: 4),
-                Text(
-                  'Bumalik',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+    backgroundColor: AppColors.white,
+    elevation: 0,
+    centerTitle: true,
+    toolbarHeight: 60,
+    leadingWidth: 100,
+    leading: Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.pop(ctx),
+        child: const Row(
+          children: [
+            Icon(Icons.arrow_back, size: 18, color: AppColors.primaryTeal),
+            SizedBox(width: 4),
+            Text(
+              'Bumalik',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.black,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
+          ],
         ),
-        title: const Text(
-          'Edit Family Member',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: AppColors.black,
-            fontSize: 18,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.primaryTeal),
-        ),
-      );
+      ),
+    ),
+    title: const Text(
+      'Edit Family Member',
+      style: TextStyle(
+        fontWeight: FontWeight.w700,
+        color: AppColors.black,
+        fontSize: 18,
+      ),
+    ),
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(1),
+      child: Container(height: 1, color: AppColors.primaryTeal),
+    ),
+  );
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -792,11 +773,8 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
               const SizedBox(height: 10),
               _BankChips(
                 banks: _banks,
-                onAdd: () => _showAddBankDialog(
-                  context,
-                  _banks,
-                  () => setState(() {}),
-                ),
+                onAdd: () =>
+                    _showAddBankDialog(context, _banks, () => setState(() {})),
                 onRemove: (bank) => setState(() => _banks.remove(bank)),
               ),
               const SizedBox(height: 28),
@@ -909,47 +887,47 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     super.dispose();
   }
 
-    AppBar _buildAppBar(BuildContext ctx) => AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        centerTitle: true,
-        toolbarHeight: 60,
-        leadingWidth: 100,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(ctx),
-            child: const Row(
-              children: [
-                Icon(Icons.arrow_back, size: 18, color: AppColors.primaryTeal),
-                SizedBox(width: 4),
-                Text(
-                  'Bumalik',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+  AppBar _buildAppBar(BuildContext ctx) => AppBar(
+    backgroundColor: AppColors.white,
+    elevation: 0,
+    centerTitle: true,
+    toolbarHeight: 60,
+    leadingWidth: 100,
+    leading: Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.pop(ctx),
+        child: const Row(
+          children: [
+            Icon(Icons.arrow_back, size: 18, color: AppColors.primaryTeal),
+            SizedBox(width: 4),
+            Text(
+              'Bumalik',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.black,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
+          ],
         ),
-        title: const Text(
-          'Add Family Member',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: AppColors.black,
-            fontSize: 18,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.primaryTeal),
-        ),
-      );
+      ),
+    ),
+    title: const Text(
+      'Add Family Member',
+      style: TextStyle(
+        fontWeight: FontWeight.w700,
+        color: AppColors.black,
+        fontSize: 18,
+      ),
+    ),
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(1),
+      child: Container(height: 1, color: AppColors.primaryTeal),
+    ),
+  );
 
-// appbar for add family member screen
+  // appbar for add family member screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1008,11 +986,8 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               const SizedBox(height: 10),
               _BankChips(
                 banks: _banks,
-                onAdd: () => _showAddBankDialog(
-                  context,
-                  _banks,
-                  () => setState(() {}),
-                ),
+                onAdd: () =>
+                    _showAddBankDialog(context, _banks, () => setState(() {})),
                 onRemove: (bank) => setState(() => _banks.remove(bank)),
               ),
               const SizedBox(height: 28),
@@ -1104,12 +1079,18 @@ class _InputField extends StatelessWidget {
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         filled: true,
         fillColor: AppColors.bgOffWhite,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primaryTeal, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.primaryTeal,
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -1138,34 +1119,40 @@ class _BankChips extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        ...banks.map((bank) => GestureDetector(
-              onLongPress: () => onRemove(bank),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryTeal,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      bank,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    GestureDetector(
-                      onTap: () => onRemove(bank),
-                      child: const Icon(Icons.close, size: 14, color: AppColors.white),
-                    ),
-                  ],
-                ),
+        ...banks.map(
+          (bank) => GestureDetector(
+            onLongPress: () => onRemove(bank),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: AppColors.primaryTeal,
+                borderRadius: BorderRadius.circular(15),
               ),
-            )),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    bank,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () => onRemove(bank),
+                    child: const Icon(
+                      Icons.close,
+                      size: 14,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
         GestureDetector(
           onTap: onAdd,
           child: Container(

@@ -29,7 +29,7 @@ class FamilySetupTestScreen extends StatefulWidget {
 class _FamilySetupTestScreenState extends State<FamilySetupTestScreen> {
   final _service = FamilySetupService();
 
-  final _configName = TextEditingController();
+  final _userName = TextEditingController();
   final _notifyName = TextEditingController();
   final _notifyContact = TextEditingController();
   final _elderEmail = TextEditingController();
@@ -77,7 +77,7 @@ class _FamilySetupTestScreenState extends State<FamilySetupTestScreen> {
     setState(() => _status = 'Saving...');
     try {
       await _service.saveSetup(
-        configName: _configName.text,
+        userName: _userName.text,
         selectedBanks: _selectedBanks,
         selectedGovernments: _selectedGovt,
         selectedTelcos: _selectedTelcos,
@@ -100,7 +100,7 @@ class _FamilySetupTestScreenState extends State<FamilySetupTestScreen> {
     setState(() {
       _loadedSetup = setup;
       _status = setup != null
-          ? '✅ Loaded: ${setup.configName}'
+          ? '✅ Loaded: ${setup.userName}'
           : '⚠️ No setup found.';
     });
   }
@@ -134,8 +134,8 @@ class _FamilySetupTestScreenState extends State<FamilySetupTestScreen> {
 
             // FORM
             TextField(
-              controller: _configName,
-              decoration: const InputDecoration(labelText: 'Config Name'),
+              controller: _userName,
+              decoration: const InputDecoration(labelText: 'user Name'),
             ),
             TextField(
               controller: _notifyName,
@@ -304,7 +304,7 @@ class _FamilySetupTestScreenState extends State<FamilySetupTestScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Config: ${_loadedSetup!.configName}'),
+                    Text('user: ${_loadedSetup!.userName}'),
                     Text('Language: ${_loadedSetup!.language}'),
                     Text('Banks: ${_loadedSetup!.selectedBanks.join(", ")}'),
                     Text(
