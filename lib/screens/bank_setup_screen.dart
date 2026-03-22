@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import '../screens/home_screen.dart';
 
@@ -268,7 +269,7 @@ class _SetupBankScreenState extends State<SetupBankScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                    MaterialPageRoute(builder: (context) => MainNavigation()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

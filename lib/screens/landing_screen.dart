@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/home_screen.dart';
@@ -78,7 +79,7 @@ class LandingScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {
                       Navigator.push(context,
-                      MaterialPageRoute(builder: (context)  => HomeScreen()),
+                      MaterialPageRoute(builder: (context)  => MainNavigation()),
                   );
                     },
                     style: OutlinedButton.styleFrom(
