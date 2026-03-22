@@ -17,7 +17,12 @@
         "maso-suspend", "mag-verify na", "i-verify na", "i-click agad",
         "mag-update na", "kailangang gawin agad", "huwag palampasin",
         "claim now", "verify immediately", "update now", "login now",
-        "confirm now", "suspended", "account suspended", "access suspended"
+        "confirm now", "suspended", "account suspended", "access suspended",
+        "needs confirmation", "confirm your account", "account needs confirmation",
+        "requires confirmation", "confirm identity", "confirm your identity",
+        "confirm details", "verify details", "update account information",
+        "account verification required", "confirmation required", "action required",
+        "re-verify", "reconfirm", "account at risk", "unusual activity detected"
       ],
       "institutions": ["BDO", "BPI", "GCash", "Maya", "UnionBank", "Metrobank", "Landbank"],
       "risk_score": 90,
@@ -62,6 +67,22 @@
       "explanation": {
         "eng": "You cannot win a prize you never joined. This is a common trick to steal your personal information.",
         "fil": "Hindi ka mananalo ng premyo sa paligsahang hindi ka sumali. Ito ay karaniwang paraan para nakawin ang iyong personal na impormasyon."
+      }
+    },
+    {
+      "category": "Phishing Attempt",
+      "flags": ["suspicious_url"],
+      "keywords": ["update", "confirm", "verify credentials"],
+      "urgency_phrases": [
+        "update your information", "confirm your details",
+        "verify your credentials", "check your account"
+      ],
+      "institutions": [],
+      "risk_score": 60,
+      "verdict": "Suspicious",
+      "explanation": {
+        "eng": "This message may be phishing. Be cautious when clicking links.",
+        "fil": "Ang mensaheng ito ay maaaring phishing. Mag-ingat sa pag-click ng mga link."
       }
     }
   ]

@@ -42,6 +42,7 @@ dependencies:
   flutter_notification_listener: ^1.4.0
   shared_preferences: ^2.5.4
   uuid: ^4.5.3
+  permission_handler: ^12.0.1
   flutter_svg: ^2.0.10
 
 dev_dependencies:
@@ -58,6 +59,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/scam_patterns.json
+    - assets/spam_patterns.json
     - assets/verified_domains.json
     - assets/images/siyasat_logo.svg
     - assets/images/siyasat_logo.png
@@ -66,6 +68,7 @@ flutter:
     - assets/images/onboarding3.1.png
     - assets/images/onboarding3.2.png
     - assets/images/onboarding4.png
+    - assets/images/landing_page_logo.png
     # - assets/images/
 
 

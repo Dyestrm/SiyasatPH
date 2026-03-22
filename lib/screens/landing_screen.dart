@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../screens/onboarding_screen.dart';
+import '../screens/home_screen.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
@@ -17,7 +18,7 @@ class LandingScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/images/siyasat_logo.png',
+                  'assets/images/landing_page_logo.png',
                   height: 200,
                 ),
 
@@ -75,7 +76,11 @@ class LandingScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context)  => HomeScreen()),
+                  );
+                    },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textColorWhite,
                       padding: EdgeInsets.symmetric(vertical: 14),

@@ -1,18 +1,19 @@
+// spam_detector.dart  ← MAJOR FIX
 import '../models/analysis_result.dart';
 import '../models/scam_pattern.dart';
-import '../repository/pattern_repository.dart';
+import '../repository/spam_pattern_repository.dart';
 
-class UrgencyDetector {
-  static final UrgencyDetector _instance = UrgencyDetector._internal();
-  factory UrgencyDetector() => _instance;
-  UrgencyDetector._internal();
+class SpamDetector {
+  static final SpamDetector _instance = SpamDetector._internal();
+  factory SpamDetector() => _instance;
+  SpamDetector._internal();
 
-  final PatternRepository _repository = PatternRepository();
+  final SpamPatternRepository _repository = SpamPatternRepository();
 
   Future<AnalysisResult> analyze(String message) async {
     await _repository.loadPatterns();
     if (message.trim().isEmpty) {
-      return const AnalysisResult(verdict: "Not a scam", riskScore: 0);
+      return const AnalysisResult(verdict: "Not spam", riskScore: 0);
     }
 
     final lowerMsg = message.toLowerCase();
@@ -22,7 +23,6 @@ class UrgencyDetector {
     final Map<ScamPattern, List<String>> phraseMap = {};
 
     for (var pattern in _repository.patterns) {
-      // Check both urgency phrases and keywords to catch more scam signals.
       final matchedUrgency = pattern.urgencyPhrases
           .where((p) => lowerMsg.contains(p.toLowerCase()))
           .toList();
@@ -37,24 +37,21 @@ class UrgencyDetector {
     }
 
     if (phraseMap.isEmpty) {
-      return const AnalysisResult(verdict: "Not a scam", riskScore: 0);
+      return const AnalysisResult(verdict: "Not spam", riskScore: 0);
     }
 
     final matchedPatterns = phraseMap.keys.toList();
 
-    // Start with the highest risk score from all matched patterns.
-    int riskScore = matchedPatterns.map((p) => p.riskScore).reduce((a, b) => a > b ? a : b);
-
-    // Add small bonuses: +12 if multiple patterns match, +18 if a bank is mentioned.
-    if (matchedPatterns.length > 1) riskScore += 12;
-    if (matchedPatterns.any((p) => p.institutions.isNotEmpty)) riskScore += 18;
-
-    riskScore = riskScore.clamp(0, 95);
+    // Take the highest risk score from all matched patterns.
+    // The final score reflects the most dangerous pattern found.
+    final riskScore = matchedPatterns
+        .map((p) => p.riskScore)
+        .reduce((a, b) => a > b ? a : b);
 
     // Gather all matched phrases from every pattern.
     // This allows the app to show users the exact words that triggered the detection.
     final triggeredPhrases = phraseMap.values.expand((e) => e).toList();
-
+    
     // Collect the categories of all matched patterns.
     // Useful for grouping results in the user interface.
     final categories = matchedPatterns.map((p) => p.category).toList();
@@ -63,8 +60,9 @@ class UrgencyDetector {
     // We use its explanation because it gives the clearest warning.
     final topPattern = matchedPatterns.reduce((a, b) => a.riskScore > b.riskScore ? a : b);
 
+    // TODO: Once frontend team builds UI, swap this with UI-provided localized text elements
     return AnalysisResult(
-      verdict: "Likely a scam",
+      verdict: "Spam",
       riskScore: riskScore,
       triggeredPhrases: triggeredPhrases,
       matchedCategories: categories,
