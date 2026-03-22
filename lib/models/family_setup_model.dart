@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FamilySetupModel {
-  final String deviceId;
+  final String deviceId;           // This device (elder's device)
+  final String? guardianDeviceId;  // Guardian's device for alerts
   final String configName;
   final List<String> selectedBanks;
   final List<String> selectedGovernments;
@@ -18,6 +19,7 @@ class FamilySetupModel {
 
   FamilySetupModel({
     required this.deviceId,
+    this.guardianDeviceId,
     required this.configName,
     required this.selectedBanks,
     required this.selectedGovernments,
@@ -35,6 +37,7 @@ class FamilySetupModel {
 
   Map<String, dynamic> toMap() => {
     'device_id': deviceId,
+    'guardian_device_id': guardianDeviceId,
     'config_name': configName,
     'selected_banks': selectedBanks,
     'selected_governments': selectedGovernments,
@@ -52,6 +55,7 @@ class FamilySetupModel {
 
   Map<String, dynamic> toFirestoreMap() => {
     'device_id': deviceId,
+    'guardian_device_id': guardianDeviceId,
     'config_name': configName,
     'selected_banks': selectedBanks,
     'selected_governments': selectedGovernments,
@@ -70,6 +74,7 @@ class FamilySetupModel {
   factory FamilySetupModel.fromMap(Map<String, dynamic> map) =>
       FamilySetupModel(
         deviceId: map['device_id'],
+        guardianDeviceId: map['guardian_device_id'],
         configName: map['config_name'],
         selectedBanks: List<String>.from(map['selected_banks']),
         selectedGovernments: List<String>.from(map['selected_governments']),
@@ -88,6 +93,7 @@ class FamilySetupModel {
   factory FamilySetupModel.fromFirestore(Map<String, dynamic> map) =>
       FamilySetupModel(
         deviceId: map['device_id'],
+        guardianDeviceId: map['guardian_device_id'],
         configName: map['config_name'],
         selectedBanks: List<String>.from(map['selected_banks']),
         selectedGovernments: List<String>.from(map['selected_governments']),

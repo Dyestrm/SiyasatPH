@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './theme/colors.dart';
+import 'package:flutter/foundation.dart';
 import './screens/landing_screen.dart';
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'services/notification_listener_service.dart';
 import 'services/family_setup_service.dart';
 import 'services/notification_service.dart';
+import 'services/firebase_messaging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,38 +20,42 @@ void main() async {
   // Initialize local notifications service
   await NotificationService.initialize();
 
-  // Initialize the notification listener plugin
-  await NotificationsListener.initialize();
+  // Only run notification listener on Android
+  if (!kIsWeb) {
+    await NotificationsListener.initialize();
 
-  // Check permission — sends user to Settings if not granted
-  final hasPermission = await NotificationsListener.hasPermission;
-  if (hasPermission == false) {
-    await NotificationsListener.openPermissionSettings();
+    final hasPermission = await NotificationsListener.hasPermission;
+    if (hasPermission == false) {
+      await NotificationsListener.openPermissionSettings();
+    }
+
+    final familySetupService = FamilySetupService();
+    final setup = await familySetupService.getSetup();
+
+    if (setup != null && setup.isActive) {
+      await NotificationListenerService().startListening(
+        selectedBanks: setup.selectedBanks,
+        language: setup.language,
+      );
+    } else {
+      await NotificationListenerService().startListening(
+        selectedBanks: [],
+        language: 'fil',
+      );
+    }
+
+    final isRunning = await NotificationsListener.isRunning;
+    if (isRunning == false) {
+      await NotificationsListener.startService();
+    }
   }
 
-  // Load family setup and start listening with configured rules
-  final familySetupService = FamilySetupService();
-  final setup = await familySetupService.getSetup();
+  // Guardian listener works on both web and Android
+  await NotificationListenerService().startGuardianListener();
 
-  if (setup != null && setup.isActive) {
-    // Start listening with user's configuration
-    await NotificationListenerService().startListening(
-      selectedBanks: setup.selectedBanks,
-      language: setup.language,
-    );
-  } else {
-    // Start with default configuration
-    await NotificationListenerService().startListening(
-      selectedBanks: [],
-      language: 'fil',
-    );
-  }
-
-  // Start the native listener service
-  final isRunning = await NotificationsListener.isRunning;
-  if (isRunning == false) {
-    await NotificationsListener.startService();
-  }
+  // Initialize Firebase Messaging Service
+  final messagingService = FirebaseMessagingService();
+  await messagingService.initialize();
 
   runApp(const MyApp());
 }
