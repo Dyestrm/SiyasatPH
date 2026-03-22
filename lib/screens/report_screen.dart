@@ -38,7 +38,7 @@ class _ReportNtcScreenState extends State<ReportScreen> {
       toolbarHeight: 60,
       leadingWidth: 120, 
       leading: Padding(
-        padding: const EdgeInsets.only(left: 13.0, top: 10.0), 
+        padding: const EdgeInsets.only(left: 10.0, top: 10.0), 
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
