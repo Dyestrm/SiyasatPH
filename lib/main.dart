@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:siyasat_ph/screens/choice_setup_screen.dart';
+import 'package:siyasat_ph/screens/history_screen.dart';
+import 'package:siyasat_ph/screens/home_screen.dart';
 import './theme/colors.dart';
 import './screens/landing_screen.dart';
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
@@ -66,7 +69,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: LandingScreen(),
+      home: SetupChoiceScreen(),
     );
   }
 }
