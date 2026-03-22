@@ -138,7 +138,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/onboarding2.png',
+              'assets/images/onboarding2.svg',
               width: double.infinity,
               fit: BoxFit.contain,
             ),
@@ -181,7 +181,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/images/onboarding3.png', width: double.infinity, fit: BoxFit.contain),
+          Image.asset('assets/images/onboarding3.svg', width: double.infinity, fit: BoxFit.contain),
 
           SizedBox(height: 24),
 
@@ -200,9 +200,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>{
           ),
 
           SizedBox(height: 16),
-          Image.asset('assets/images/onboarding3.1.png', width: double.infinity, fit: BoxFit.contain),
+          Image.asset('assets/images/onboarding3.1.svg', width: double.infinity, fit: BoxFit.contain),
           SizedBox(height: 8),
-          Image.asset('assets/images/onboarding3.2.png', width: double.infinity, fit: BoxFit.contain),
+          Image.asset('assets/images/onboarding3.2.svg', width: double.infinity, fit: BoxFit.contain),
         ],
       ),
     );
@@ -215,7 +215,7 @@ Widget _buildPage4() {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset('assets/images/onboarding4.png', width: double.infinity, fit: BoxFit.contain),
+        Image.asset('assets/images/onboarding4.svg', width: double.infinity, fit: BoxFit.contain),
         SizedBox(height: 24),
         
         Text(
