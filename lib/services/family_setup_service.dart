@@ -32,7 +32,8 @@ class FamilySetupService {
   // ── PUBLIC ──────────────────────────────────────────────────
 
   Future<void> saveSetup({
-    required String configName,
+    required String userName,
+    required String setupType,   
     required List<String> selectedBanks,
     required List<String> selectedGovernments,
     required List<String> selectedTelcos,
@@ -47,7 +48,8 @@ class FamilySetupService {
 
     final setup = FamilySetupModel(
       deviceId: deviceId,
-      configName: configName,
+      userName: userName,
+      setupType: setupType, 
       selectedBanks: selectedBanks,
       selectedGovernments: selectedGovernments,
       selectedTelcos: selectedTelcos,
@@ -79,7 +81,8 @@ class FamilySetupService {
       } else {
         await query.docs.first.reference
             .update({
-              'config_name': configName,
+              'user_name': userName,
+              'setup_type': setupType,
               'selected_banks': selectedBanks,
               'selected_governments': selectedGovernments,
               'selected_telcos': selectedTelcos,

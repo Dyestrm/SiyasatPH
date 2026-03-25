@@ -3,7 +3,8 @@ import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import 'bank_setup_screen.dart';
 import 'home_screen.dart';
-
+import '../models/family_setup_model.dart';
+import '../services/family_setup_service.dart';
 
 class SetupChoiceScreen extends StatefulWidget {
   const SetupChoiceScreen({super.key});
@@ -288,12 +289,12 @@ class _SetupChoiceScreenState extends State<SetupChoiceScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () { 
                   Navigator.push(context,
                     MaterialPageRoute(builder: (context)  => SetupBankScreen(
-                      configName: _selectedConfig,
-                      notifyName: _nameController.text,
-                      notifyContact: _contactController.text,
+                      setupType: _selectedConfig,
+                      userName: _nameController.text,
+                      elderContact: _contactController.text,
                       language: _selectedLanguage,
                     ),
                   ),

@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FamilySetupModel {
   final String deviceId;
-  final String configName;
+  final String userName; // changed from configName -> userName
+  final String setupType; // store configType ('para sakin' para sa pamilya)
   final List<String> selectedBanks;
   final List<String> selectedGovernments;
   final List<String> selectedTelcos;
@@ -18,7 +19,8 @@ class FamilySetupModel {
 
   FamilySetupModel({
     required this.deviceId,
-    required this.configName,
+    required this.userName,
+    required this.setupType, 
     required this.selectedBanks,
     required this.selectedGovernments,
     required this.selectedTelcos,
@@ -35,7 +37,8 @@ class FamilySetupModel {
 
   Map<String, dynamic> toMap() => {
     'device_id': deviceId,
-    'config_name': configName,
+    'user_name': userName,
+    'setup_type': setupType,
     'selected_banks': selectedBanks,
     'selected_governments': selectedGovernments,
     'selected_telcos': selectedTelcos,
@@ -52,7 +55,8 @@ class FamilySetupModel {
 
   Map<String, dynamic> toFirestoreMap() => {
     'device_id': deviceId,
-    'config_name': configName,
+    'user_name': userName,
+    'setup_type': setupType,
     'selected_banks': selectedBanks,
     'selected_governments': selectedGovernments,
     'selected_telcos': selectedTelcos,
@@ -70,7 +74,8 @@ class FamilySetupModel {
   factory FamilySetupModel.fromMap(Map<String, dynamic> map) =>
       FamilySetupModel(
         deviceId: map['device_id'],
-        configName: map['config_name'],
+        userName: map['user_name'],
+        setupType: map['setup_type'] ?? 'Para sa akin', 
         selectedBanks: List<String>.from(map['selected_banks']),
         selectedGovernments: List<String>.from(map['selected_governments']),
         selectedTelcos: List<String>.from(map['selected_telcos'] ?? []),
@@ -88,7 +93,8 @@ class FamilySetupModel {
   factory FamilySetupModel.fromFirestore(Map<String, dynamic> map) =>
       FamilySetupModel(
         deviceId: map['device_id'],
-        configName: map['config_name'],
+        userName: map['user_name'],
+        setupType: map['setup_type'] ?? 'Para sa akin', 
         selectedBanks: List<String>.from(map['selected_banks']),
         selectedGovernments: List<String>.from(map['selected_governments']),
         selectedTelcos: List<String>.from(map['selected_telcos'] ?? []),

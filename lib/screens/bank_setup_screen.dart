@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import '../screens/home_screen.dart';
+import '../services/family_setup_service.dart';
 
 class SetupBankScreen extends StatefulWidget {
-  final String configName;
-  final String notifyName;
-  final String notifyContact;
+  final String setupType;
+  final String userName;
+  final String elderContact;
   final String language;
 
   const SetupBankScreen({
     super.key,
-    required this.configName,
-    required this.notifyName,
-    required this.notifyContact,
+    required this.setupType,
+    required this.userName,
+    required this.elderContact,
     required this.language,
   });
 
@@ -23,11 +24,14 @@ class SetupBankScreen extends StatefulWidget {
 
 class _SetupBankScreenState extends State<SetupBankScreen> {
 
+  final _setupService = FamilySetupService();
+  bool _saving = false;   
+
   // --- selected banks and government
   List<String> _selectedBanks = [];
   List<String> _selectedGovernments = [];
 
-  // notification toggle
+  // notification toggle  
   bool _autoDetect = false;
 
   // available options
@@ -266,12 +270,38 @@ class _SetupBankScreenState extends State<SetupBankScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainNavigation()),
-                  );
-                },
+                onPressed: _saving 
+                  ? null 
+                  : () async {
+                    setState(() => _saving = true);
+
+                    try {
+                      await FamilySetupService().saveSetup(
+                        setupType: widget.setupType,
+                        userName: widget.userName,
+                        selectedBanks: _selectedBanks,
+                        selectedGovernments: _selectedGovernments,
+                        selectedTelcos: [],
+                        language: widget.language,
+                        elderContact: widget.elderContact.isEmpty
+                            ? null
+                            : widget.elderContact,
+                      );
+
+                      // Navigate to home screen after successful save
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => MainNavigation()),
+                          (route) => false,
+                        );
+                      }
+                    } catch (e) {
+                      print('Save failed: $e');
+                    } finally {
+                      if (mounted) setState(() => _saving = false);
+                    }
+                  },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryTeal,
                   foregroundColor: AppColors.textColorWhite,
@@ -281,7 +311,7 @@ class _SetupBankScreenState extends State<SetupBankScreen> {
                   ),
                 ),
                 child: Text(
-                  'Tapos Na',
+                  _saving ? 'Saving...' : 'Tapos Na',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
