@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
-import '../widgets/bottom_nav.dart';
 import '../services/family_setup_service.dart';
 import '../models/family_setup_model.dart';
 
@@ -173,9 +172,7 @@ class SetupScreen extends StatefulWidget {
   State<SetupScreen> createState() => _SetupScreenState();
 }
 
-// navbar index 2 = setup
 class _SetupScreenState extends State<SetupScreen> {
-  int _currentIndex = 2;
 
   // service for loading and saving setup
   final _setupService = FamilySetupService();
@@ -309,10 +306,6 @@ class _SetupScreenState extends State<SetupScreen> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }

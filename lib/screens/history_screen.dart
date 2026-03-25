@@ -1,67 +1,56 @@
 import 'package:flutter/material.dart';
-import '../widgets/bottom_nav.dart';
 import '../theme/colors.dart';
+import '../repository/history_repository.dart';
+import '../models/history_entry.dart';
+import '../models/verdict.dart';
 
 //data model
 enum MessageLabel { scam, ingat, ligtas }
-
-class SmsMessage {
-  final String label;
-  final MessageLabel labelType;
-  final String preview;
-  final String time;
-  final String sender;
-
-  const SmsMessage({
-    required this.label,
-    required this.labelType,
-    required this.preview,
-    required this.time,
-    required this.sender,
-  });
-}
-
-final List<SmsMessage> sampleMessages = [
-  SmsMessage(
-    label: 'Scam',
-    labelType: MessageLabel.scam,
-    preview: 'Your BDO account is suspended...',
-    time: '9:59 pm',
-    sender: '09123456789',
-  ),
-  SmsMessage(
-    label: 'Ingat',
-    labelType: MessageLabel.ingat,
-    preview: 'Please verify you Gcash account...',
-    time: 'kahapon',
-    sender: 'unknown',
-  ),
-  SmsMessage(
-    label: 'Ligtas',
-    labelType: MessageLabel.ligtas,
-    preview: 'Your OTP is 1234567...',
-    time: 'March 17',
-    sender: '09123456789',
-  ),
-  SmsMessage(
-    label: 'Scam',
-    labelType: MessageLabel.scam,
-    preview: 'Congrats! You won 50,000...',
-    time: 'March 16',
-    sender: 'unknown',
-  ),
-];
-
+enum FilterType { all, scam, spam, suspicious, ligtas }
 
 Color labelColor(MessageLabel type) {
   switch (type) {
-    case MessageLabel.scam:
-      return AppColors.sunsetOrange;
-    case MessageLabel.ingat:
-      return AppColors.burntUmber;
-    case MessageLabel.ligtas:
-      return AppColors.primaryTeal;
+    case MessageLabel.scam: return AppColors.sunsetOrange;
+    case MessageLabel.ingat: return AppColors.burntUmber;
+    case MessageLabel.ligtas: return AppColors.primaryTeal;
   }
+}
+
+// Helper Methods
+MessageLabel _mapToLabel(RiskLevel level) {
+  if (level == RiskLevel.safe) return MessageLabel.ligtas;
+  if (level == RiskLevel.suspicious) return MessageLabel.ingat;
+  return MessageLabel.scam; // spam & likelyScam = same red color
+}
+
+String _getVerdictDisplayName(RiskLevel level) {
+  switch (level) {
+    case RiskLevel.safe: return 'Ligtas';
+    case RiskLevel.suspicious: return 'Mag-ingat';
+    case RiskLevel.spam: return 'Spam';
+    case RiskLevel.likelyScam: return 'Scam';
+  }
+}
+
+IconData _getVerdictIcon(RiskLevel level) {
+  switch (level) {
+    case RiskLevel.safe: return Icons.done_all_rounded;
+    case RiskLevel.suspicious: return Icons.error_outline;
+    default: return Icons.clear_rounded;
+  }
+}
+
+Color _getVerdictColor(RiskLevel level) {
+  if (level == RiskLevel.safe) return AppColors.primaryTeal;
+  if (level == RiskLevel.suspicious) return AppColors.burntUmber;
+  return AppColors.sunsetOrange;
+}
+
+String _formatTime(DateTime timestamp) {
+  final diff = DateTime.now().difference(timestamp);
+  if (diff.inDays >= 1) return '${diff.inDays}d ago';
+  if (diff.inHours >= 1) return '${diff.inHours}h ago';
+  return '${diff.inMinutes}m ago';
 }
 
 //history screen
@@ -73,57 +62,83 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  int _selectedFilter = 0; // 0=All, 1=Scam, 2=Kahina-hinala, 3=Ligtas
-  int _currentIndex = 1; // 0=Suriin, 1=Kasaysayan, 2=Setup, 3=Settings
+  FilterType _selectedFilter = FilterType.all; // Replaced magic numbers with enum
+  final List<String> _filters = ['All', 'Scam', 'Spam', 'Kahina-hinala', 'Ligtas'];
+  
+  List<HistoryEntry> _entries = [];
+  final HistoryRepository _repo = HistoryRepository();
 
-  final List<String> _filters = ['All', 'Scam', 'Kahina-hinala', 'Ligtas'];
+  @override
+  void initState() {
+    super.initState();
+    _loadHistory();
+    _repo.addListener(_loadHistory); // ← auto-refresh signal from AnalysisService
+  }
+
+  @override
+  void dispose() {
+    _repo.removeListener(_loadHistory);
+    super.dispose();
+  }
+
+  Future<void> _loadHistory() async {
+    final data = await _repo.getAll();
+    setState(() => _entries = data);
+  }
+
+  Future<void> _clearAll() async {
+    await _repo.clearAll();
+  }
+
+  List<HistoryEntry> get _filteredEntries {
+    if (_selectedFilter == FilterType.all) return _entries;
+    if (_selectedFilter == FilterType.scam) {
+      return _entries.where((e) => e.result.level == RiskLevel.likelyScam).toList();
+    }
+    if (_selectedFilter == FilterType.spam) {
+      return _entries.where((e) => e.result.level == RiskLevel.spam).toList();
+    }
+    if (_selectedFilter == FilterType.suspicious) {
+      return _entries.where((e) => e.result.level == RiskLevel.suspicious).toList();
+    }
+    return _entries.where((e) => e.result.level == RiskLevel.safe).toList();
+  }
 
 // header
   AppBar _buildAppBar() => AppBar(
-      backgroundColor: AppColors.white,
-      elevation: 0,
-      centerTitle: false,
-      toolbarHeight: 56,
-      titleSpacing: 30,
-      title: const Text(
-        'Kasaysayan',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: AppColors.black,
-          fontSize: 16,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {},
-          child: const Text(
-            'Clear All',
-            style: TextStyle(
-              color: AppColors.black,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        centerTitle: false,
+        toolbarHeight: 56,
+        titleSpacing: 30,
+        title: const Text(
+          'Kasaysayan',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColors.black,
+            fontSize: 16,
           ),
         ),
-        const SizedBox(width: 23),
-      ],
-      // line in header
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(height: 1, color: AppColors.primaryTeal),
-      ),
-    );
-
-  List<SmsMessage> get _filteredMessages {
-    if (_selectedFilter == 0) return sampleMessages;
-    if (_selectedFilter == 1) {
-      return sampleMessages.where((m) => m.labelType == MessageLabel.scam).toList();
-    }
-    if (_selectedFilter == 2) {
-      return sampleMessages.where((m) => m.labelType == MessageLabel.ingat).toList();
-    }
-    return sampleMessages.where((m) => m.labelType == MessageLabel.ligtas).toList();
-  }
+        actions: [
+          TextButton(
+            onPressed: _clearAll,
+            child: const Text(
+              'Clear All',
+              style: TextStyle(
+                color: AppColors.black,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const SizedBox(width: 23),
+        ],
+        // line in header
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: AppColors.primaryTeal),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +159,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 itemCount: _filters.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final selected = _selectedFilter == index;
+                  final selected = _selectedFilter == FilterType.values[index];
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedFilter = index),
+                    onTap: () => setState(() => _selectedFilter = FilterType.values[index]),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
@@ -175,34 +190,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
             //message list
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                itemCount: _filteredMessages.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final msg = _filteredMessages[index];
-                  return _MessageCard(
-                    message: msg,
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        isDismissible: true,
-                        enableDrag: true,
-                        builder: (_) => ResultSheet(message: msg),
-                      );
-                    },
-                  );
-                },
-              ),
+              child: _entries.isEmpty
+                  ? const Center(child: Text('Walang history pa.', style: TextStyle(color: Colors.grey)))
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      itemCount: _filteredEntries.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final entry = _filteredEntries[index];
+                        return _MessageCard(
+                          entry: entry,
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              isDismissible: true,
+                              enableDrag: true,
+                              builder: (_) => ResultSheet(entry: entry),
+                            );
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }
@@ -211,13 +224,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
 //message card
 
 class _MessageCard extends StatelessWidget {
-  final SmsMessage message;
+  final HistoryEntry entry;
   final VoidCallback onTap;
 
-  const _MessageCard({required this.message, required this.onTap});
+  const _MessageCard({required this.entry, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final labelType = _mapToLabel(entry.result.level);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -240,16 +254,16 @@ class _MessageCard extends StatelessWidget {
               width: 64,
               padding: const EdgeInsets.symmetric(vertical: 5),
               decoration: BoxDecoration(
-                color: labelColor(message.labelType).withOpacity(0.12),
+                color: labelColor(labelType).withOpacity(0.12),
                 borderRadius: BorderRadius.circular(8),
               ),
               alignment: Alignment.center,
               child: Text(
-                message.label,
+                _getVerdictDisplayName(entry.result.level),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: labelColor(message.labelType),
+                  color: labelColor(labelType),
                 ),
               ),
             ),
@@ -261,7 +275,9 @@ class _MessageCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    message.preview,
+                    entry.originalMessage.length > 65
+                        ? "${entry.originalMessage.substring(0, 65)}..."
+                        : entry.originalMessage,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -272,7 +288,7 @@ class _MessageCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${message.time} - ${message.sender}',
+                    '${_formatTime(entry.timestamp)} - ${entry.result.senderNumber}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF999999),
@@ -292,243 +308,222 @@ class _MessageCard extends StatelessWidget {
 
 //result sheet
 class ResultSheet extends StatelessWidget {
-  final SmsMessage message;
-  const ResultSheet({super.key, required this.message});
+  final HistoryEntry entry;
+  const ResultSheet({super.key, required this.entry});
 
   @override
   Widget build(BuildContext context) {
-    final isScam = message.labelType == MessageLabel.scam;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final level = entry.result.level;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
       child: DraggableScrollableSheet(
-      initialChildSize: 0.72,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      snap: true,
-      snapSizes: const [0.72, 0.95],
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.bgOffWhite,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 20,
-                offset: Offset(0, -4),
-              ),
-            ],
-          ),
-          child: ListView(
-            controller: scrollController,
-            padding: EdgeInsets.zero,
-            children: [
-              //drag handle
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 4),
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.textGrey,
-                      borderRadius: BorderRadius.circular(2),
+        initialChildSize: 0.72,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        snap: true,
+        snapSizes: const [0.72, 0.95],
+        builder: (context, scrollController) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: AppColors.bgOffWhite,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 20,
+                  offset: Offset(0, -4),
+                ),
+              ],
+            ),
+            child: ListView(
+              controller: scrollController,
+              padding: EdgeInsets.zero,
+              children: [
+                //drag handle
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 4),
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.textGrey,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              //header row
-              Column(
-                children: [
-                Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: Row(
+                //header row
+                Column(
                   children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                       child: Row(
-                        children: const [
-                          Icon(Icons.arrow_back, size: 18, color: AppColors.primaryTeal),
-                          SizedBox(width: 4),
-                          Text(
-                            'Return',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.primaryTeal,
-                              fontWeight: FontWeight.w500,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.arrow_back, size: 18, color: AppColors.primaryTeal),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Return',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.primaryTeal,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                          const Spacer(),
+                          const Text(
+                            'Result',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.black,
+                            ),
+                          ),
+                          const Spacer(),
+                          const SizedBox(width: 70),
                         ],
                       ),
                     ),
-                    const Spacer(),
-                    const Text(
-                      'Result',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
-                    ),
-                    const Spacer(),
-                    const SizedBox(width: 70),
+                    Container(height: 1, color: AppColors.primaryTeal),
                   ],
                 ),
-              ),
-              Container(height: 1, color: AppColors.primaryTeal),
-            ],
-          ),
-          const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-            //result summary/bagde
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: switch (message.labelType) {
-                          MessageLabel.scam => AppColors.scamColor,
-                          MessageLabel.ingat => AppColors.burntUmber,
-                          MessageLabel.ligtas => AppColors.primaryTeal,
-                        },
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        switch (message.labelType) {
-                          MessageLabel.scam => Icons.clear_rounded,
-                          MessageLabel.ingat => Icons.error_outline,
-                          MessageLabel.ligtas => Icons.done_all_rounded,
-                        },
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      switch (message.labelType) {
-                        MessageLabel.scam => 'Likely Scam',
-                        MessageLabel.ingat => 'Suspicious',
-                        MessageLabel.ligtas => 'Safe',
-                      },
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: switch (message.labelType) {
-                          MessageLabel.scam => AppColors.scamColor,
-                          MessageLabel.ingat => AppColors.burntUmber,
-                          MessageLabel.ligtas => AppColors.primaryTeal,
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${message.time}    ${message.sender}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textGrey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-                    //original message box
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE0E0E0)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'ORIHINAL NA MENSAHE',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textGrey,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              '"Ang iyong BDO account ay suspended. I-verify ang iyong account ngayon para maiwasan ang deactivation: bdo-verify.com/secure"',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.black,
-                                height: 1.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    //why it was flagged box (only show if scam or ingat)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3F3),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.paleBlush),
-                  ),
+                //result summary/bagde
+                Center(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: _getVerdictColor(level),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _getVerdictIcon(level),
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       Text(
-                        'BAKIT NA FLAG',
+                        _getVerdictDisplayName(level),
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 20,
                           fontWeight: FontWeight.w700,
+                          color: _getVerdictColor(level),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${_formatTime(entry.timestamp)}    ${entry.result.senderNumber}',
+                        style: const TextStyle(
+                          fontSize: 13,
                           color: AppColors.textGrey,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Pekeng domain: "bdo-verify.com"',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color:  AppColors.black,
-                          height: 1.6,
-                        ),
-                      ),
-                      Text(
-                        'Urgency Language: “ma-suspend”',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.black,
-                          height: 1.6,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
-            ],
-          ),
-        );
-      },
-    ),
+
+                const SizedBox(height: 24),
+
+                //original message box
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'ORIHINAL NA MENSAHE',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textGrey,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          entry.originalMessage,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.black,
+                            height: 1.6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                //why it was flagged box (only show if scam or ingat)
+                if (entry.result.reasons.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3F3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.paleBlush),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'BAKIT NA FLAG',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textGrey,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ...entry.result.reasons.map((r) => Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  '• $r',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.black,
+                                    height: 1.6,
+                                  ),
+                                ),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 32),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

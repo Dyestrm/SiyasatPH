@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import '../screens/home_screen.dart';
 import '../services/family_setup_service.dart';
@@ -269,31 +270,38 @@ class _SetupBankScreenState extends State<SetupBankScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _saving ? null : () async {
-                  setState(() => _saving = true);
+                onPressed: _saving 
+                  ? null 
+                  : () async {
+                    setState(() => _saving = true);
 
-                  await FamilySetupService().saveSetup(
-                    setupType: widget.setupType,
-                    userName: widget.userName,
-                    selectedBanks: _selectedBanks,
-                    selectedGovernments: _selectedGovernments,
-                    selectedTelcos: [],
-                    language: widget.language,
-                    elderContact: widget.elderContact.isEmpty
-                        ? null
-                        : widget.elderContact,
-                  );
+                    try {
+                      await FamilySetupService().saveSetup(
+                        setupType: widget.setupType,
+                        userName: widget.userName,
+                        selectedBanks: _selectedBanks,
+                        selectedGovernments: _selectedGovernments,
+                        selectedTelcos: [],
+                        language: widget.language,
+                        elderContact: widget.elderContact.isEmpty
+                            ? null
+                            : widget.elderContact,
+                      );
 
-                  setState(() => _saving = false);
-
-                  if (context.mounted) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => HomeScreen()),
-                      (route) => false,
-                    );
-                  }
-                },
+                      // Navigate to home screen after successful save
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => MainNavigation()),
+                          (route) => false,
+                        );
+                      }
+                    } catch (e) {
+                      print('Save failed: $e');
+                    } finally {
+                      if (mounted) setState(() => _saving = false);
+                    }
+                  },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryTeal,
                   foregroundColor: AppColors.textColorWhite,

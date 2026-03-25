@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';          
 import 'package:path_provider/path_provider.dart';
 import '../models/history_entry.dart';
 import '../models/verdict.dart';
 
-class HistoryRepository {
+class HistoryRepository extends ChangeNotifier {
   static final HistoryRepository _instance = HistoryRepository._internal();
   factory HistoryRepository() => _instance;
   HistoryRepository._internal();
@@ -53,8 +53,17 @@ class HistoryRepository {
       originalMessage: originalMessage,
       result: result,
     );
-    _history.insert(0, entry); // newest first
+    _history.insert(0, entry);
     await _saveToFile();
+    notifyListeners(); // notify all files using HistoryRepository
+  }
+
+  /// Clear all entries
+  Future<void> clearAll() async {
+    await _initFile();
+    _history.clear();
+    await _saveToFile();
+    notifyListeners();
   }
 
   /// Get all entries (newest first)
@@ -63,7 +72,7 @@ class HistoryRepository {
     return _history;
   }
 
-  /// Prints nicely to console for now until History UI has been implemented
+  /// Debug purposes
   Future<void> displayHistory() async {
     final entries = await getAll();
     if (entries.isEmpty) {

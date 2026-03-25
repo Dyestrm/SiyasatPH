@@ -43,7 +43,7 @@ dependencies:
   shared_preferences: ^2.5.4
   uuid: ^4.5.3
   permission_handler: ^12.0.1
-  flutter_svg: ^2.0.10
+  flutter_svg: ^2.2.4
 
 dev_dependencies:
   flutter_test:
@@ -51,6 +51,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   hive_generator: ^2.0.1
   build_runner: ^2.4.12
+  
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -61,15 +62,7 @@ flutter:
     - assets/scam_patterns.json
     - assets/spam_patterns.json
     - assets/verified_domains.json
-    - assets/images/siyasat_logo.svg
-    - assets/images/siyasat_logo.png
-    - assets/images/onboarding2.png
-    - assets/images/onboarding3.png
-    - assets/images/onboarding3.1.png
-    - assets/images/onboarding3.2.png
-    - assets/images/onboarding4.png
-    - assets/images/landing_page_logo.png
-    # - assets/images/
+    - assets/images/
 
 
 
@@ -101,21 +94,20 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   fonts:
-  # POPPINS FONT
-  - family: Poppins
-    fonts:
-    - asset: assets/fonts/Poppins-Regular.ttf
-      weight: 400
-    - asset: assets/fonts/Poppins-Bold.ttf
-      weight: 700
-    - asset: assets/fonts/Poppins-Italic.ttf
-      style: italic
-    - asset: assets/fonts/Poppins-Medium.ttf
-      weight: 500
-    - asset: assets/fonts/Poppins-SemiBold.ttf
-      weight: 600
-    - asset: assets/fonts/Poppins-Light.ttf
-      weight: 300
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
       
   #
   # For details regarding fonts from package dependencies,
