@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:siyasat_ph/theme/colors.dart';
-import 'package:siyasat_ph/models/verdict.dart';
 import 'package:flutter/services.dart';
 
 enum VerdictType { safe, suspicious, scam, spam }
