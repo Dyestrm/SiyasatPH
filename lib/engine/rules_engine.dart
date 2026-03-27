@@ -28,14 +28,21 @@ class RulesEngine {
 
     final totalScore = _calculateTotalScore(results);
     final clampedScore = totalScore.clamp(0, 100);
-
     final level = _determineRiskLevel(results, clampedScore);
-
     final explanation = _getExplanation(level);
+
+    // Build tags only for safe verdict
+    final List<String> tags = [];
+    if (level == RiskLevel.safe) {
+      if (results.urgency.riskScore == 0) tags.add('No urgency');
+      if (!results.url.isFlagged) tags.add('No fake URLs');
+      if (results.spam.riskScore == 0) tags.add('No Suspicious Keywords');
+    }
 
     return Verdict(
       level: level,
       reasons: reasons,
+      tags: tags, // pass it in
       explanation: explanation,
       senderNumber: senderNumber,
       timestamp: DateTime.now(),

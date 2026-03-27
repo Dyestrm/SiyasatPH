@@ -5,6 +5,7 @@ enum RiskLevel { safe, suspicious, likelyScam, spam }
 class Verdict {
   final RiskLevel level;
   final List<VerdictReason> reasons;
+  final List<String> tags;
   final String explanation;
   final String senderNumber;
   final DateTime timestamp;
@@ -12,6 +13,7 @@ class Verdict {
   Verdict({
     required this.level,
     required this.reasons,
+    required this.tags,
     required this.explanation,
     required this.senderNumber,
     required this.timestamp,
@@ -27,6 +29,7 @@ class Verdict {
               body: r['body'] as String,
             ))
         .toList(),
+      tags: List<String>.from(json['tags'] ?? []),
       explanation: json['explanation'] as String,
       senderNumber: json['senderNumber'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
@@ -40,6 +43,7 @@ class Verdict {
       'title': r.title,
       'body': r.body,
     }).toList(),
+    'tags': tags,
     'explanation': explanation,
     'senderNumber': senderNumber,
     'timestamp': timestamp.toIso8601String(),
@@ -68,7 +72,7 @@ extension VerdictToScanResult on Verdict {
       message: originalMessage,
       sender: sender,
       flags: flags,
-      tags: const [],
+      tags: tags,
     );
   }
 }
