@@ -95,14 +95,6 @@ class RulesEngine {
         body: reason,
       ));
     }
-
-    for (final reason in results.bank.reasons) {
-      reasons.add(VerdictReason(
-        label: 'HINDI SIGURADO?',
-        title: '',
-        body: reason,
-      ));
-    }
   }
 
   int _calculateTotalScore(_DetectorResults results) {
