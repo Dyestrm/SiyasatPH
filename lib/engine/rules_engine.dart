@@ -21,21 +21,27 @@ class RulesEngine {
   String language = 'fil';
 
   Future<Verdict> analyze(String message, String senderNumber) async {
-    final reasons = <String>[];
     final results = await _runAllDetectors(message);
-
-    _addReasonsFromResults(reasons, results);
-
     final totalScore = _calculateTotalScore(results);
     final clampedScore = totalScore.clamp(0, 100);
-
     final level = _determineRiskLevel(results, clampedScore);
 
+    final reasons = <VerdictReason>[];
+    _addReasonsFromResults(reasons, results, level);
+
     final explanation = _getExplanation(level);
+
+    final List<String> tags = [];
+    if (level == RiskLevel.safe) {
+      if (results.urgency.riskScore == 0) tags.add('No urgency');
+      if (!results.url.isFlagged) tags.add('No fake URLs');
+      if (results.spam.riskScore == 0) tags.add('No Suspicious Keywords');
+    }
 
     return Verdict(
       level: level,
       reasons: reasons,
+      tags: tags,
       explanation: explanation,
       senderNumber: senderNumber,
       timestamp: DateTime.now(),
@@ -52,21 +58,45 @@ class RulesEngine {
     );
   }
 
-  void _addReasonsFromResults(List<String> reasons, _DetectorResults results) {
-    if (results.spam.triggeredPhrases.isNotEmpty) {
-      for (final phrase in results.spam.triggeredPhrases) {
-        reasons.add('Spam urgency: "$phrase"');
-      }
-    }
+  void _addReasonsFromResults(List<VerdictReason> reasons, _DetectorResults results, RiskLevel level) {
+    final isSuspicious = level == RiskLevel.suspicious;
+    final urgencyLabel = isSuspicious ? 'BABALA' : 'BAKIT NA FLAG';
+
     if (results.urgency.triggeredPhrases.isNotEmpty) {
-      for (final phrase in results.urgency.triggeredPhrases) {
-        reasons.add('Urgency language: "$phrase"');
-      }
+      final phrases = results.urgency.triggeredPhrases.toSet().toList();
+      final deduped = phrases.where((phrase) =>
+        !phrases.any((other) => other != phrase && other.contains(phrase))
+      ).toList();
+
+      reasons.add(VerdictReason(
+        label: urgencyLabel,
+        title: 'Urgency Language',
+        body: deduped.map((p) => '• $p').join('\n'),
+        explanation: results.urgency.explanation ?? '',
+      ));
     }
-    if (results.url.isFlagged) {
-      reasons.addAll(results.url.reasons);
+
+    if (results.spam.triggeredPhrases.isNotEmpty) {
+      final phrases = results.spam.triggeredPhrases.toSet().toList();
+      final deduped = phrases.where((phrase) =>
+        !phrases.any((other) => other != phrase && other.contains(phrase))
+      ).toList();
+
+      reasons.add(VerdictReason(
+        label: urgencyLabel,
+        title: 'Spam Language',
+        body: deduped.map((p) => '• $p').join('\n'),
+        explanation: results.urgency.explanation ?? '',
+      ));
     }
-    reasons.addAll(results.bank.reasons);
+
+    for (final reason in results.url.reasons) {
+      reasons.add(VerdictReason(
+        label: 'FAKE LINK',
+        title: '',
+        body: reason,
+      ));
+    }
   }
 
   int _calculateTotalScore(_DetectorResults results) {

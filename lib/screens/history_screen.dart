@@ -479,6 +479,7 @@ class ResultSheet extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 //why it was flagged box (only show if scam or ingat)
+                //TODO: Need to adjust because Verdict.reasons is no longer List<String>
                 if (entry.result.reasons.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),

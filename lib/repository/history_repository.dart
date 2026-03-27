@@ -86,6 +86,7 @@ class HistoryRepository extends ChangeNotifier {
       print('💬 ${entry.originalMessage.length > 80 ? "${entry.originalMessage.substring(0, 80)}..." : entry.originalMessage}');
       print('✅ Verdict: ${entry.result.level.name.toUpperCase()}');
       print('📝 Explanation: ${entry.result.explanation}');
+      //TODO: Need to adjust because Verdict.reasons is no longer List<String>
       if (entry.result.reasons.isNotEmpty) {
         print('🔍 Reasons: ${entry.result.reasons.join(" | ")}');
       }
