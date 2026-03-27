@@ -21,17 +21,16 @@ class RulesEngine {
   String language = 'fil';
 
   Future<Verdict> analyze(String message, String senderNumber) async {
-    final reasons = <VerdictReason>[];
     final results = await _runAllDetectors(message);
-
-    _addReasonsFromResults(reasons, results);
-
     final totalScore = _calculateTotalScore(results);
     final clampedScore = totalScore.clamp(0, 100);
     final level = _determineRiskLevel(results, clampedScore);
+
+    final reasons = <VerdictReason>[];
+    _addReasonsFromResults(reasons, results, level);
+
     final explanation = _getExplanation(level);
 
-    // Build tags only for safe verdict
     final List<String> tags = [];
     if (level == RiskLevel.safe) {
       if (results.urgency.riskScore == 0) tags.add('No urgency');
@@ -42,7 +41,7 @@ class RulesEngine {
     return Verdict(
       level: level,
       reasons: reasons,
-      tags: tags, // pass it in
+      tags: tags,
       explanation: explanation,
       senderNumber: senderNumber,
       timestamp: DateTime.now(),
@@ -59,43 +58,52 @@ class RulesEngine {
     );
   }
 
-  void _addReasonsFromResults(List<VerdictReason> reasons, _DetectorResults results) {
-  // Spam phrases — grouped into one card
-  if (results.spam.triggeredPhrases.isNotEmpty) {
-    reasons.add(VerdictReason(
-      label: 'BAKIT NA FLAG',
-      title: 'Spam Language',
-      body: results.spam.triggeredPhrases.map((p) => '• $p').join('\n'),
-    ));
-  }
+  void _addReasonsFromResults(List<VerdictReason> reasons, _DetectorResults results, RiskLevel level) {
+    final isSuspicious = level == RiskLevel.suspicious;
+    final urgencyLabel = isSuspicious ? 'BABALA' : 'BAKIT NA FLAG';
 
-  // Urgency phrases — grouped into one card
-  if (results.urgency.triggeredPhrases.isNotEmpty) {
-    reasons.add(VerdictReason(
-      label: 'BABALA',
-      title: 'Urgency Language',
-      body: results.urgency.triggeredPhrases.map((p) => '• $p').join('\n'),
-    ));
-  }
+    if (results.urgency.triggeredPhrases.isNotEmpty) {
+      final phrases = results.urgency.triggeredPhrases.toSet().toList();
+      final deduped = phrases.where((phrase) =>
+        !phrases.any((other) => other != phrase && other.contains(phrase))
+      ).toList();
 
-  // URL flags — one card per flagged URL
-  for (final reason in results.url.reasons) {
-    reasons.add(VerdictReason(
-      label: 'FAKE LINK',
-      title: '',
-      body: reason,
-    ));
-  }
+      reasons.add(VerdictReason(
+        label: urgencyLabel,
+        title: 'Urgency Language',
+        body: '${deduped.map((p) => '• $p').join('\n')}\n\n${results.urgency.explanation ?? ''}',
+      ));
+    }
 
-  // Bank flags — one card per finding
-  for (final reason in results.bank.reasons) {
-    reasons.add(VerdictReason(
-      label: 'HINDI SIGURADO?',
-      title: '',
-      body: reason,
-    ));
+    if (results.spam.triggeredPhrases.isNotEmpty) {
+      final phrases = results.spam.triggeredPhrases.toSet().toList();
+      final deduped = phrases.where((phrase) =>
+        !phrases.any((other) => other != phrase && other.contains(phrase))
+      ).toList();
+
+      reasons.add(VerdictReason(
+        label: urgencyLabel,
+        title: 'Spam Language',
+        body: '${deduped.map((p) => '• $p').join('\n')}\n\n${results.spam.explanation ?? ''}',
+      ));
+    }
+
+    for (final reason in results.url.reasons) {
+      reasons.add(VerdictReason(
+        label: 'FAKE LINK',
+        title: '',
+        body: reason,
+      ));
+    }
+
+    for (final reason in results.bank.reasons) {
+      reasons.add(VerdictReason(
+        label: 'HINDI SIGURADO?',
+        title: '',
+        body: reason,
+      ));
+    }
   }
-}
 
   int _calculateTotalScore(_DetectorResults results) {
     int score = results.spam.riskScore + results.urgency.riskScore + results.bank.riskScore;
