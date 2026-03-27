@@ -27,6 +27,7 @@ class Verdict {
               label: r['label'] as String,
               title: r['title'] as String,
               body: r['body'] as String,
+              explanation: r['explanation'] as String? ?? '',
             ))
         .toList(),
       tags: List<String>.from(json['tags'] ?? []),
@@ -42,6 +43,7 @@ class Verdict {
       'label': r.label,
       'title': r.title,
       'body': r.body,
+      'explanation': r.explanation,
     }).toList(),
     'tags': tags,
     'explanation': explanation,
@@ -65,6 +67,7 @@ extension VerdictToScanResult on Verdict {
       label: r.label,
       title: r.title,
       body: r.body,
+      explanation: r.explanation,
     )).toList();
 
     return ScanResult(
@@ -81,10 +84,12 @@ class VerdictReason {
   final String label;
   final String title;
   final String body;
+  final String explanation;
 
   const VerdictReason({
     required this.label,
     required this.title,
     required this.body,
+    this.explanation = '',
   });
 }

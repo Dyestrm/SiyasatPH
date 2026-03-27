@@ -8,11 +8,13 @@ class FlagItem{
   final String label;
   final String title;
   final String body;
+  final String explanation;
 
   const FlagItem({
     required this.label,
     required this.title,
     required this.body,
+    this.explanation = '',
   });
 }
 
@@ -199,6 +201,7 @@ _VStyle get _style {
         label: 'PAGSUSURI',
         title: '',
         body: 'Walang makitang kahina-hinalang link o mataas na presyur na pananalita.',
+        explanation: '',
         tags: result.tags,
       );
     }
@@ -207,7 +210,13 @@ _VStyle get _style {
       children: result.flags
           .map((f) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: _flagCard(s, label: f.label, title: f.title, body: f.body),
+                child: _flagCard(
+                  s, 
+                  label: f.label, 
+                  title: f.title, 
+                  body: f.body,
+                  explanation: f.explanation,
+                ),
               ))
           .toList(),
     );
@@ -219,6 +228,7 @@ _VStyle get _style {
     required String label,
     required String title,
     required String body,
+    String explanation = '',
     List<String> tags = const [],
   }) =>
       Container(
@@ -252,9 +262,19 @@ _VStyle get _style {
               body,
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.midGrey,
+                color: Colors.black,
               ),
             ),
+            if (explanation.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                explanation,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.midGrey,
+                ),
+              ),
+            ],
             if (tags.isNotEmpty) ...[
               const SizedBox(height: 10),
               Wrap(

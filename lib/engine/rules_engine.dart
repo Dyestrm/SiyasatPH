@@ -71,7 +71,8 @@ class RulesEngine {
       reasons.add(VerdictReason(
         label: urgencyLabel,
         title: 'Urgency Language',
-        body: '${deduped.map((p) => '• $p').join('\n')}\n\n${results.urgency.explanation ?? ''}',
+        body: deduped.map((p) => '• $p').join('\n'),
+        explanation: results.urgency.explanation ?? '',
       ));
     }
 
@@ -84,7 +85,8 @@ class RulesEngine {
       reasons.add(VerdictReason(
         label: urgencyLabel,
         title: 'Spam Language',
-        body: '${deduped.map((p) => '• $p').join('\n')}\n\n${results.spam.explanation ?? ''}',
+        body: deduped.map((p) => '• $p').join('\n'),
+        explanation: results.urgency.explanation ?? '',
       ));
     }
 
