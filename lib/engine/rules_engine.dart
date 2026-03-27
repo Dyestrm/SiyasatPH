@@ -21,7 +21,7 @@ class RulesEngine {
   String language = 'fil';
 
   Future<Verdict> analyze(String message, String senderNumber) async {
-    final reasons = <String>[];
+    final reasons = <VerdictReason>[];
     final results = await _runAllDetectors(message);
 
     _addReasonsFromResults(reasons, results);
@@ -52,22 +52,43 @@ class RulesEngine {
     );
   }
 
-  void _addReasonsFromResults(List<String> reasons, _DetectorResults results) {
-    if (results.spam.triggeredPhrases.isNotEmpty) {
-      for (final phrase in results.spam.triggeredPhrases) {
-        reasons.add('Spam urgency: "$phrase"');
-      }
-    }
-    if (results.urgency.triggeredPhrases.isNotEmpty) {
-      for (final phrase in results.urgency.triggeredPhrases) {
-        reasons.add('Urgency language: "$phrase"');
-      }
-    }
-    if (results.url.isFlagged) {
-      reasons.addAll(results.url.reasons);
-    }
-    reasons.addAll(results.bank.reasons);
+  void _addReasonsFromResults(List<VerdictReason> reasons, _DetectorResults results) {
+  // Spam phrases — grouped into one card
+  if (results.spam.triggeredPhrases.isNotEmpty) {
+    reasons.add(VerdictReason(
+      label: 'BAKIT NA FLAG',
+      title: 'Spam Language',
+      body: results.spam.triggeredPhrases.map((p) => '• $p').join('\n'),
+    ));
   }
+
+  // Urgency phrases — grouped into one card
+  if (results.urgency.triggeredPhrases.isNotEmpty) {
+    reasons.add(VerdictReason(
+      label: 'BABALA',
+      title: 'Urgency Language',
+      body: results.urgency.triggeredPhrases.map((p) => '• $p').join('\n'),
+    ));
+  }
+
+  // URL flags — one card per flagged URL
+  for (final reason in results.url.reasons) {
+    reasons.add(VerdictReason(
+      label: 'FAKE LINK',
+      title: '',
+      body: reason,
+    ));
+  }
+
+  // Bank flags — one card per finding
+  for (final reason in results.bank.reasons) {
+    reasons.add(VerdictReason(
+      label: 'HINDI SIGURADO?',
+      title: '',
+      body: reason,
+    ));
+  }
+}
 
   int _calculateTotalScore(_DetectorResults results) {
     int score = results.spam.riskScore + results.urgency.riskScore + results.bank.riskScore;
