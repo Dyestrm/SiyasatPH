@@ -39,12 +39,12 @@ dependencies:
   provider: ^6.1.2
   cloud_firestore: 6.1.3
   path_provider: ^2.1.5   # For reading/writing outside 'assets/'
-  flutter_notification_listener: ^1.4.0
   shared_preferences: ^2.5.4
   uuid: ^4.5.3
   permission_handler: ^12.0.1
   flutter_svg: ^2.2.4
   intl: ^0.19.0 # for formatting timestamp
+  flutter_notification_listener_plus: ^1.3.7
 
 dev_dependencies:
   flutter_test:

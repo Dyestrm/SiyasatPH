@@ -1,4 +1,4 @@
-import 'package:flutter_notification_listener/flutter_notification_listener.dart';
+import 'package:flutter_notification_listener_plus/flutter_notification_listener_plus.dart';
 import '../engine/rules_engine.dart';
 import '../models/verdict.dart';
 import 'notification_service.dart';

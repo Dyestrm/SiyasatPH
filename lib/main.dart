@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:siyasat_ph/screens/landing_screen.dart';
 import './utils/locale_provider.dart';
-import 'package:flutter_notification_listener/flutter_notification_listener.dart';
+import 'package:flutter_notification_listener_plus/flutter_notification_listener_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/notification_listener_service.dart';
