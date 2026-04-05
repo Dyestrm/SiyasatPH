@@ -8,6 +8,21 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
+
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+}
+
 android {
     namespace = "com.example.siyasat_ph"
     compileSdk = flutter.compileSdkVersion
@@ -15,12 +30,12 @@ android {
 
 	compileOptions {
 		isCoreLibraryDesugaringEnabled = true
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 
 	kotlinOptions {
-		jvmTarget = JavaVersion.VERSION_21.toString()
+		jvmTarget = JavaVersion.VERSION_17.toString()
 	}
 
     defaultConfig {
@@ -48,6 +63,3 @@ flutter {
     source = "../.."
 }
 
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-}
