@@ -45,6 +45,12 @@ class RulesEngine {
       explanation: explanation,
       senderNumber: senderNumber,
       timestamp: DateTime.now(),
+      // combine categories from both urgency and spam detectors
+      // deduplicated so the same category doesn't appear twice
+      matchedCategories: {
+        ...results.urgency.matchedCategories,
+        ...results.spam.matchedCategories,
+      }.toList(),
     );
   }
 

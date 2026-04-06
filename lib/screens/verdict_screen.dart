@@ -26,12 +26,14 @@ class FlagItem{
   final String sender;
   final List<FlagItem> flags;
   final List<String> tags;
+  final List<String> matchedCategories;
   const ScanResult({
     required this.verdict,
     required this.message,
     this.sender = '',
     this.flags = const [],
-    this.tags = const [],  });
+    this.tags = const [],
+    this.matchedCategories = const [],  });
   }
 
 class VerdictScreen extends StatelessWidget {
@@ -347,8 +349,10 @@ _VStyle get _style {
               senderNumber: result.sender.isNotEmpty
                   ? result.sender
                   : 'Hindi natukoy',
-              // verdict label as scam type (e.g. "Posibleng Scam")
-              scamType: _style.label,
+              // use matched category if available, otherwise fallback to verdict label
+              scamType: result.matchedCategories.isNotEmpty
+                      ? result.matchedCategories.first
+                      : _style.label,
               // the actual scam message body
               messageExcerpt: result.message,
               // format the current time as the report date/time
