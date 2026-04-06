@@ -124,28 +124,31 @@ _VStyle get _style {
       leadingWidth: 120, 
       leading: Padding(
         padding: const EdgeInsets.only(left: 26.0), 
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(
-                Icons.arrow_back,
-                size: 28, 
-                color: AppColors.primaryTeal,
+        child: FittedBox(           // ← ADD: shrinks content to fit
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  size: 28, 
+                  color: AppColors.primaryTeal,
+                ),
+                onPressed: () => Navigator.pop(ctx),
               ),
-              onPressed: () => Navigator.pop(ctx),
-            ),
-            const SizedBox(width: 7),
-            const Text(
-              'Bumalik',
-              style: TextStyle(
-                color: AppColors.black, 
-                fontSize: 13,
+              const SizedBox(width: 7),
+              const Text(
+                'Bumalik',
+                style: TextStyle(
+                  color: AppColors.black, 
+                  fontSize: 18,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       title: const Text(
