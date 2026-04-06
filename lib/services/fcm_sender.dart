@@ -11,7 +11,7 @@ class FcmSender {
     required String body,
   }) async {
     // Load service account JSON from assets
-    final jsonString = await rootBundle.loadString('assets/secrets/service_account.json');
+    final jsonString = await rootBundle.loadString('assets/secrets/siyasatph_service_account.json');
     final serviceAccount = ServiceAccountCredentials.fromJson(jsonString);
 
     // Get OAuth token
