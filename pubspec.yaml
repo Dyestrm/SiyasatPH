@@ -66,6 +66,7 @@ flutter:
     - assets/spam_patterns.json
     - assets/verified_domains.json
     - assets/images/
+    - assets/secrets/siyasatph_service_account.json # For message forwarding
 
 
 
