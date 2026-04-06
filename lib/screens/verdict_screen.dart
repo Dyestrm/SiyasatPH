@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:siyasat_ph/theme/colors.dart';
 import 'package:flutter/services.dart';
+import 'package:siyasat_ph/screens/report_screen.dart';
+import 'package:intl/intl.dart'; // for formatting timestamp
 
 enum VerdictType { safe, suspicious, scam, spam }
 
@@ -337,7 +339,27 @@ _VStyle get _style {
         color: AppColors.textDarkRed,
         backgroundColor: AppColors.paleBlush,
         onTap: () {
-          /* insert NTC report logic */
+          Navigator.push(
+          ctx,
+          MaterialPageRoute(
+            builder: (_) => ReportScreen(
+              // sender number from the scan result
+              senderNumber: result.sender.isNotEmpty
+                  ? result.sender
+                  : 'Hindi natukoy',
+              // verdict label as scam type (e.g. "Posibleng Scam")
+              scamType: _style.label,
+              // the actual scam message body
+              messageExcerpt: result.message,
+              // format the current time as the report date/time
+              // since ScanResult doesn't carry a timestamp,
+              // we use now() — acceptable because user is reporting immediately
+              dateTime: DateFormat('MMMM d, yyyy – h:mm a').format(DateTime.now()),
+              // pass flags so report screen can derive triggered rules for Firestore
+              flags: result.flags,
+            ),
+          ),
+        );
         },
       ),
       const SizedBox(height: 10),

@@ -42,33 +42,58 @@ class ScamReportService {
     }
   }
 
+  // formats DateTime to readable string e.g. "March 20, 2026 - 6:30 PM"
+  String _formatDateTime(DateTime dt) {
+    final months = [
+      'January', 'February', 'March', 'April',
+      'May', 'June', 'July', 'August',
+      'September', 'October', 'November', 'December'
+    ];
+    final hour = dt.hour > 12
+        ? dt.hour - 12
+        : dt.hour == 0
+            ? 12
+            : dt.hour;
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '${months[dt.month - 1]} ${dt.day}, ${dt.year} - $hour:$minute $period';
+  }
+
   // launch pre-filled email to NTC
   Future<void> launchNtcEmail({
     required String messageSnippet,
     required String verdict,
     required List<String> triggeredRules,
+    required String scamType,
+    required DateTime dateTime,
     String? senderNumber,
-    String? configName,
+    String? userName,
     String? elderEmail,
     String? elderContact,
     String? elderAddress,
+    String? additionalComment,
   }) async {
+    // build optional sections only if data is present
+    final commentSection = (additionalComment != null && additionalComment.isNotEmpty)
+        ? '\nAdditional Comments:\n$additionalComment\n'
+        : '';
+
     final body =
         '''
 Text Scam Complaint Report
 --------------------------
-Full Name: ${configName ?? '[Please fill in]'}
-Address: ${elderAddress ?? '[Please fill in]'}
-Contact Number: ${elderContact ?? '[Please fill in]'}
-Email: ${elderEmail ?? '[Please fill in]'}
+Full Name: ${userName ?? 'Ilagay dito'}
+Address: ${elderAddress ?? 'Ilagay dito'}
+Contact Number: ${elderContact ?? 'Ilagay dito'}
 
 Scam Details:
 Sender Number: ${senderNumber ?? 'Unknown'}
-Verdict: $verdict
-Flags Detected: ${triggeredRules.join(', ')}
+Type of Scam: $scamType
 Message: "$messageSnippet"
+Date and Time: ${_formatDateTime(dateTime)}
+$commentSection
 
-[Please attach: screenshot of the scam message and photo of valid ID]
+[Paki-attach: screenshot ng scam message at larawan ng valid ID]
 ''';
 
     // manually encode to preserve spaces and line breaks
@@ -91,11 +116,15 @@ Message: "$messageSnippet"
     required String message,
     required List<String> triggeredRules,
     required String verdict,
+    required String scamType,
+    required DateTime dateTime,
     String? senderNumber,
-    String? configName,
+    String? userName,
     String? elderEmail,
     String? elderContact,
     String? elderAddress,
+    String? additionalComment,
+    String? attachedFileName,
   }) async {
     final report = await buildReport(
       message: message,
@@ -109,12 +138,15 @@ Message: "$messageSnippet"
     await launchNtcEmail(
       messageSnippet: report.messageSnippet,
       verdict: verdict,
-      triggeredRules: triggeredRules,
+      scamType: scamType,
+      dateTime: dateTime,
+      triggeredRules: triggeredRules, 
       senderNumber: senderNumber,
-      configName: configName,
+      userName: userName,
       elderEmail: elderEmail,
       elderContact: elderContact,
       elderAddress: elderAddress,
+      additionalComment: additionalComment,
     );
   }
 }
