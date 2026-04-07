@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:siyasat_ph/screens/landing_screen.dart';
@@ -14,6 +13,9 @@ void main() async {
 
   // Initialize Firebase / FCM and notification handling
   await FcmService.initialize();
+  final uniqueTopic = await FcmService.getUniqueTopic();
+  await FcmService.subscribeToTopic(uniqueTopic);
+  debugPrint('Subscribed to unique topic: $uniqueTopic');
 
   // Initialize local notifications service
   await NotificationService.initialize();
