@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../theme/colors.dart';
 import '../services/family_setup_service.dart';
+import '../services/fcm_service.dart';
 import '../models/family_setup_model.dart';
 
 //add bank modal
@@ -325,7 +326,7 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Future<void> _showFcmKeyDialog() async {
-    final token = await FirebaseMessaging.instance.getToken();
+    final token = await FcmService.getToken();
     if (!mounted) return;
 
     final outerContext = context;
