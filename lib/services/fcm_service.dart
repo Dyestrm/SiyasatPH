@@ -29,6 +29,7 @@ class FcmService {
   static bool _initialized = false;
   static String? _cachedToken;
   static bool _tokenListenerAttached = false;
+  static String? _currentTopic;
 
   static Future<void> initialize({bool requestPermission = true}) async {
     if (_initialized) return;
@@ -138,4 +139,27 @@ class FcmService {
 
   static FlutterLocalNotificationsPlugin get localNotificationsPlugin =>
       _localNotificationsPlugin;
+
+  static Future<String> getUniqueTopic() async {
+    if (_currentTopic != null) return _currentTopic!;
+
+    final token = await getToken();
+    if (token == null) throw Exception('No FCM token available');
+
+    // Create a valid topic name by hashing the token
+    final hash = token.hashCode.abs().toString();
+    _currentTopic = 'topic_$hash';
+
+    return _currentTopic!;
+  }
+
+  static Future<void> subscribeToTopic(String topic) async {
+    await _messaging.subscribeToTopic(topic);
+    debugPrint('Subscribed to topic: $topic');
+  }
+
+  static Future<void> unsubscribeFromTopic(String topic) async {
+    await _messaging.unsubscribeFromTopic(topic);
+    debugPrint('Unsubscribed from topic: $topic');
+  }
 }

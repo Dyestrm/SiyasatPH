@@ -96,17 +96,13 @@ class NotificationListenerService {
         print('[SiyasatPH] Scam detected from $packageName: ${verdict.level}');
         print('[SiyasatPH] Risk score: ${verdict.reasons}');
 
-        // Alert all family members using the current cached token as topic
-        final topic = await FcmService.getToken();
-        if (topic != null) {
-          await FcmSender.sendToTopic(
-            topic: topic,
-            title: 'Scam alert - ${verdict.level.toString()}',
-            body: 'May natanggap ang iyong family member na posibleng scam. Makipag-usap sa kanya agad para maiwasan ang panganib.',
-          );
-        } else {
-          print('[SiyasatPH] Unable to send FCM alert because token is null');
-        }
+        // Alert all subscribed devices using the unique topic
+        final topic = await FcmService.getUniqueTopic();
+        await FcmSender.sendToTopic(
+          topic: topic,
+          title: 'Scam alert - ${verdict.level.toString()}',
+          body: 'May natanggap ang iyong family member na posibleng scam. Makipag-usap sa kanya agad para maiwasan ang panganib.',
+        );
 
       } else {
         print('[SiyasatPH] Message is SAFE - no alert');

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import '../theme/colors.dart';
 import '../services/family_setup_service.dart';
 import '../services/fcm_service.dart';
@@ -326,7 +325,7 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Future<void> _showFcmKeyDialog() async {
-    final token = await FcmService.getToken();
+    final topic = await FcmService.getUniqueTopic();
     if (!mounted) return;
 
     final outerContext = context;
@@ -336,17 +335,15 @@ class _SetupScreenState extends State<SetupScreen> {
       builder: (context) {
         return AlertDialog(
           scrollable: true,
-          title: const Text('FCM Key'),
-          content: SelectableText(token ?? 'Unable to load FCM token'),
+          title: const Text('FCM Topic Code'),
+          content: SelectableText(topic),
           actions: [
             TextButton(
               onPressed: () {
-                if (token != null) {
-                  Clipboard.setData(ClipboardData(text: token));
-                  ScaffoldMessenger.of(outerContext).showSnackBar(
-                    const SnackBar(content: Text('FCM key copied to clipboard')),
-                  );
-                }
+                Clipboard.setData(ClipboardData(text: topic));
+                ScaffoldMessenger.of(outerContext).showSnackBar(
+                  const SnackBar(content: Text('Topic code copied to clipboard')),
+                );
                 Navigator.of(context).pop();
               },
               child: const Text('Copy'),
@@ -373,7 +370,7 @@ class _SetupScreenState extends State<SetupScreen> {
     }
 
     try {
-      await FirebaseMessaging.instance.subscribeToTopic(code);
+      await FcmService.subscribeToTopic(code);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Subscribed to topic "$code"')),
