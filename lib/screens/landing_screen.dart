@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import '../screens/onboarding_screen.dart';
-import '../screens/home_screen.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});

@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
 import 'bank_setup_screen.dart';
-import 'home_screen.dart';
-import '../models/family_setup_model.dart';
-import '../services/family_setup_service.dart';
 
 class SetupChoiceScreen extends StatefulWidget {
   const SetupChoiceScreen({super.key});
