@@ -27,6 +27,8 @@ class FcmService {
   );
 
   static bool _initialized = false;
+  static String? _cachedToken;
+  static bool _tokenListenerAttached = false;
 
   static Future<void> initialize({bool requestPermission = true}) async {
     if (_initialized) return;
@@ -38,11 +40,47 @@ class FcmService {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
+    _attachTokenRefreshListener();
+
     if (requestPermission) {
       await requestPermissionIfNeeded();
     }
 
     _initialized = true;
+    await _cacheToken();
+  }
+
+  static Future<String?> getToken({bool forceRefresh = false}) async {
+    if (!_initialized) {
+      await initialize(requestPermission: false);
+    }
+
+    if (_cachedToken == null || forceRefresh) {
+      await _cacheToken(forceRefresh: forceRefresh);
+    }
+
+    return _cachedToken;
+  }
+
+  static String? get token => _cachedToken;
+
+  static Future<void> _cacheToken({bool forceRefresh = false}) async {
+    if (_cachedToken != null && !forceRefresh) {
+      return;
+    }
+
+    _cachedToken = await _messaging.getToken();
+    debugPrint('FCM token cached: $_cachedToken');
+  }
+
+  static void _attachTokenRefreshListener() {
+    if (_tokenListenerAttached) return;
+    _tokenListenerAttached = true;
+
+    _messaging.onTokenRefresh.listen((newToken) {
+      _cachedToken = newToken;
+      debugPrint('FCM token refreshed: $newToken');
+    });
   }
 
   static Future<void> requestPermissionIfNeeded() async {
