@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:siyasat_ph/widgets/main_navigation.dart';
 import '../theme/colors.dart';
-import '../screens/home_screen.dart';
 import '../services/family_setup_service.dart';
 
 class SetupBankScreen extends StatefulWidget {
