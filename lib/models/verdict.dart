@@ -9,6 +9,7 @@ class Verdict {
   final String explanation;
   final String senderNumber;
   final DateTime timestamp;
+  final List<String> matchedCategories; // carries scam categories from engine
 
   Verdict({
     required this.level,
@@ -17,6 +18,7 @@ class Verdict {
     required this.explanation,
     required this.senderNumber,
     required this.timestamp,
+    this.matchedCategories = const [], // default to empty list
   });
 
   factory Verdict.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class Verdict {
       explanation: json['explanation'] as String,
       senderNumber: json['senderNumber'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
+      matchedCategories: List<String>.from(json['matchedCategories'] ?? []),
     );
   }
 
@@ -49,6 +52,7 @@ class Verdict {
     'explanation': explanation,
     'senderNumber': senderNumber,
     'timestamp': timestamp.toIso8601String(),
+    'matchedCategories': matchedCategories,
   };
 }
 extension VerdictToScanResult on Verdict {
@@ -76,6 +80,7 @@ extension VerdictToScanResult on Verdict {
       sender: sender,
       flags: flags,
       tags: tags,
+      matchedCategories: matchedCategories
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:siyasat_ph/theme/colors.dart';
 import 'package:flutter/services.dart';
+import 'package:siyasat_ph/screens/report_screen.dart';
+import 'package:intl/intl.dart'; // for formatting timestamp
 
 enum VerdictType { safe, suspicious, scam, spam }
 
@@ -24,12 +26,14 @@ class FlagItem{
   final String sender;
   final List<FlagItem> flags;
   final List<String> tags;
+  final List<String> matchedCategories;
   const ScanResult({
     required this.verdict,
     required this.message,
     this.sender = '',
     this.flags = const [],
-    this.tags = const [],  });
+    this.tags = const [],
+    this.matchedCategories = const [],  });
   }
 
 class VerdictScreen extends StatelessWidget {
@@ -120,28 +124,31 @@ _VStyle get _style {
       leadingWidth: 120, 
       leading: Padding(
         padding: const EdgeInsets.only(left: 26.0), 
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(
-                Icons.arrow_back,
-                size: 28, 
-                color: AppColors.primaryTeal,
+        child: FittedBox(           // ← ADD: shrinks content to fit
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  size: 28, 
+                  color: AppColors.primaryTeal,
+                ),
+                onPressed: () => Navigator.pop(ctx),
               ),
-              onPressed: () => Navigator.pop(ctx),
-            ),
-            const SizedBox(width: 7),
-            const Text(
-              'Bumalik',
-              style: TextStyle(
-                color: AppColors.black, 
-                fontSize: 13,
+              const SizedBox(width: 7),
+              const Text(
+                'Bumalik',
+                style: TextStyle(
+                  color: AppColors.black, 
+                  fontSize: 18,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       title: const Text(
@@ -337,7 +344,29 @@ _VStyle get _style {
         color: AppColors.textDarkRed,
         backgroundColor: AppColors.paleBlush,
         onTap: () {
-          /* insert NTC report logic */
+          Navigator.push(
+          ctx,
+          MaterialPageRoute(
+            builder: (_) => ReportScreen(
+              // sender number from the scan result
+              senderNumber: result.sender.isNotEmpty
+                  ? result.sender
+                  : 'Hindi natukoy',
+              // use matched category if available, otherwise fallback to verdict label
+              scamType: result.matchedCategories.isNotEmpty
+                      ? result.matchedCategories.first
+                      : _style.label,
+              // the actual scam message body
+              messageExcerpt: result.message,
+              // format the current time as the report date/time
+              // since ScanResult doesn't carry a timestamp,
+              // we use now() — acceptable because user is reporting immediately
+              dateTime: DateFormat('MMMM d, yyyy – h:mm a').format(DateTime.now()),
+              // pass flags so report screen can derive triggered rules for Firestore
+              flags: result.flags,
+            ),
+          ),
+        );
         },
       ),
       const SizedBox(height: 10),
