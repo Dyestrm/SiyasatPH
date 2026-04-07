@@ -1,6 +1,17 @@
 import 'package:siyasat_ph/screens/verdict_screen.dart';
 
-enum RiskLevel { safe, suspicious, likelyScam, spam }
+enum RiskLevel {
+  safe('Safe'),
+  suspicious('Suspicious'),
+  likelyScam('Likely Scam'),
+  spam('Spam');
+
+  final String value;
+  const RiskLevel(this.value);
+
+  @override
+  String toString() => value;
+}
 
 class Verdict {
   final RiskLevel level;
