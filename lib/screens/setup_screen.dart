@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../theme/colors.dart';
 import '../services/family_setup_service.dart';
 import '../models/family_setup_model.dart';
@@ -164,6 +166,87 @@ class _AddBankSheetState extends State<_AddBankSheet> {
   }
 }
 
+class _AddContactDialog extends StatefulWidget {
+  const _AddContactDialog();
+
+  @override
+  State<_AddContactDialog> createState() => _AddContactDialogState();
+}
+
+class _AddContactDialogState extends State<_AddContactDialog> {
+  late TextEditingController controller;
+  String? errorText;
+  bool dialogMounted = true;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void safeSetState(VoidCallback fn) {
+    if (dialogMounted) setState(fn);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      scrollable: true,
+      title: const Text('Add contact'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Enter subscription code',
+            ),
+          ),
+          if (errorText?.isNotEmpty == true) ...[
+            const SizedBox(height: 12),
+            Text(
+              errorText!,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            dialogMounted = false;
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final typedCode = controller.text.trim();
+            if (typedCode.isEmpty) {
+              safeSetState(() {
+                errorText = 'Please enter a code.';
+              });
+              return;
+            }
+            dialogMounted = false;
+            Navigator.of(context).pop(typedCode);
+          },
+          child: const Text('Subscribe'),
+        ),
+      ],
+    );
+  }
+}
+
 //setup screen
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -193,6 +276,7 @@ class _SetupScreenState extends State<SetupScreen> {
   // loads setup from local storage first, Firestore as fallback
   Future<void> _loadSetup() async {
     final setup = await _setupService.getSetup();
+    if (!mounted) return;
     setState(() {
       _setup = setup;
       _loading = false;
@@ -238,6 +322,67 @@ class _SetupScreenState extends State<SetupScreen> {
     );
     // reload setup after editing
     _loadSetup();
+  }
+
+  Future<void> _showFcmKeyDialog() async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (!mounted) return;
+
+    final outerContext = context;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          scrollable: true,
+          title: const Text('FCM Key'),
+          content: SelectableText(token ?? 'Unable to load FCM token'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (token != null) {
+                  Clipboard.setData(ClipboardData(text: token));
+                  ScaffoldMessenger.of(outerContext).showSnackBar(
+                    const SnackBar(content: Text('FCM key copied to clipboard')),
+                  );
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Copy'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showAddContactDialog() async {
+    final code = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) => const _AddContactDialog(),
+    );
+
+    if (!mounted || code == null || code.isEmpty) {
+      return;
+    }
+
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic(code);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Subscribed to topic "$code"')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Subscription failed: $e')),
+      );
+    }
   }
 
   @override
@@ -302,6 +447,34 @@ class _SetupScreenState extends State<SetupScreen> {
                     height: 1.5,
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _showFcmKeyDialog,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primaryTeal,
+                        side: const BorderSide(color: AppColors.primaryTeal),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Show code'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _showAddContactDialog,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.primaryTeal,
+                        foregroundColor: AppColors.textColorWhite,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Add contact'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -577,6 +750,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       elderAddress: widget.setup.elderAddress,
                     );
 
+                    if (!mounted) return;
                     setState(() => _saving = false);
 
                     // go back to setup screen
