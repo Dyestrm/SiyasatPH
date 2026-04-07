@@ -1,4 +1,5 @@
 import 'package:flutter_notification_listener_plus/flutter_notification_listener_plus.dart';
+import 'package:siyasat_ph/services/fcm_sender.dart';
 import '../engine/rules_engine.dart';
 import '../models/verdict.dart';
 import 'notification_service.dart';
@@ -93,6 +94,14 @@ class NotificationListenerService {
         // Log the detection for debugging
         print('[SiyasatPH] Scam detected from $packageName: ${verdict.level}');
         print('[SiyasatPH] Risk score: ${verdict.reasons}');
+
+        // Alert all family members
+        await FcmSender.sendToTopic(
+          topic: 'sample', //TODO: Replace this with the user's FCM token
+          title: 'Scam alert - ${verdict.level.toString()}', 
+          body: 'May natanggap ang iyong family member na posibleng scam. Makipag-usap sa kanya agad para maiwasan ang panganib.'
+        );
+
       } else {
         print('[SiyasatPH] Message is SAFE - no alert');
       }
