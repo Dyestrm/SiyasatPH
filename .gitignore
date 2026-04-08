@@ -83,3 +83,6 @@ app.*.map.json
 
 # macOS
 **/macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Secrets
+assets/secrets/siyasatph_service_account.json

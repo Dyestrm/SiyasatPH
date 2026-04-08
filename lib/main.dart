@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:siyasat_ph/screens/landing_screen.dart';
 import './utils/locale_provider.dart';
-import 'package:flutter_notification_listener/flutter_notification_listener.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:flutter_notification_listener_plus/flutter_notification_listener_plus.dart';
+import 'services/fcm_service.dart';
 import 'services/notification_listener_service.dart';
 import 'services/family_setup_service.dart';
 import 'services/notification_service.dart';
@@ -12,10 +11,10 @@ import 'services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize Firebase / FCM and notification handling
+  await FcmService.initialize();
+  final uniqueTopic = await FcmService.getUniqueTopic();
+  debugPrint('Unique topic: $uniqueTopic');
 
   // Initialize local notifications service
   await NotificationService.initialize();
@@ -34,13 +33,11 @@ void main() async {
   final setup = await familySetupService.getSetup();
 
   if (setup != null && setup.isActive) {
-    // Start listening with user's configuration
     await NotificationListenerService().startListening(
       selectedBanks: setup.selectedBanks,
       language: setup.language,
     );
   } else {
-    // Start with default configuration
     await NotificationListenerService().startListening(
       selectedBanks: [],
       language: 'fil',

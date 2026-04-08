@@ -1,4 +1,4 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications_plus/flutter_local_notifications_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
@@ -10,7 +10,7 @@ class NotificationService {
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const settings = InitializationSettings(android: android);
-    await _plugin.initialize(settings: settings);
+    await _plugin.initialize(settings);
     
     // Request POST_NOTIFICATIONS permission at runtime (Android 13+)
     await _requestNotificationPermission();
@@ -50,10 +50,10 @@ class NotificationService {
     final notificationId = packageName.hashCode.abs();
 
     await _plugin.show(
-      id: notificationId,
-      title: '⚠️ Scam detected in $appName',
-      body: verdictLevel,
-      notificationDetails: NotificationDetails(android: androidDetails),
+      notificationId,
+      '⚠️ Scam detected in $appName',
+      verdictLevel,
+      NotificationDetails(android: androidDetails),
       payload: originalText,
     );
   }
