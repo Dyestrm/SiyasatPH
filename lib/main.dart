@@ -14,8 +14,7 @@ void main() async {
   // Initialize Firebase / FCM and notification handling
   await FcmService.initialize();
   final uniqueTopic = await FcmService.getUniqueTopic();
-  await FcmService.subscribeToTopic(uniqueTopic);
-  debugPrint('Subscribed to unique topic: $uniqueTopic');
+  debugPrint('Unique topic: $uniqueTopic');
 
   // Initialize local notifications service
   await NotificationService.initialize();

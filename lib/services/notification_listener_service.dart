@@ -4,6 +4,7 @@ import 'package:siyasat_ph/services/fcm_service.dart';
 import '../engine/rules_engine.dart';
 import '../models/verdict.dart';
 import 'notification_service.dart';
+import 'dart:async';
 
 // Top-level callback function for notification listener
 // This MUST be a top-level function - instance methods won't work with flutter_notification_listener
@@ -21,6 +22,8 @@ class NotificationListenerService {
   NotificationListenerService._internal();
 
   final RulesEngine _rulesEngine = RulesEngine();
+  int _requestCounter = 0;
+  final Set<String> _processedNotifications = {};
 
   /// Start listening to incoming notifications with specified configuration
   Future<void> startListening({
@@ -44,15 +47,24 @@ class NotificationListenerService {
 
   /// Process a notification through the scam detection pipeline
   Future<void> _processNotification(NotificationEvent event) async {
+    _requestCounter++;
+    final requestId = 'REQ#${_requestCounter}';
+
     // Extract message content from notification
     final packageName = event.packageName ?? '';
     final title = event.title ?? '';
     final messageText = event.text ?? '';
 
-    print('[SiyasatPH] ========== NEW NOTIFICATION ==========');
-    print('[SiyasatPH] Package: $packageName');
-    print('[SiyasatPH] Title: $title');
-    print('[SiyasatPH] Message: $messageText');
+    // Skip FCM notifications sent by our own app to prevent loops
+    if (packageName == 'com.example.siyasat_ph' && title.contains('Scam alert')) {
+      print('[$requestId] ⏭️ Skipping own FCM notification to prevent processing loop');
+      return;
+    }
+
+    print('[$requestId] ========== NEW NOTIFICATION RECEIVED ==========');
+    print('[$requestId] Package: $packageName');
+    print('[$requestId] Title: $title');
+    print('[$requestId] Message: $messageText');
 
     // Combine title and body for analysis (use message as fallback)
     final fullMessage = (title.isNotEmpty && messageText.isNotEmpty)
@@ -61,56 +73,96 @@ class NotificationListenerService {
             ? messageText
             : (event.message ?? '');
 
-    print('[SiyasatPH] Full message for analysis: $fullMessage');
+    print('[$requestId] Full message for analysis: $fullMessage');
 
     if (fullMessage.trim().isEmpty) {
-      print('[SiyasatPH] Message is empty, skipping');
+      print('[$requestId] Message is empty, skipping');
       return;
     }
 
+    // Create a unique key for this notification to prevent duplicates
+    final notificationKey = '${packageName}_${title}_${messageText}';
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    print('[$requestId] Notification key: $notificationKey');
+
+    // Check if we've processed this exact notification recently (within 10 seconds)
+    final recentDuplicates = _processedNotifications.where((key) {
+      if (!key.startsWith(notificationKey)) return false;
+      final parts = key.split('_');
+      if (parts.length < 4) return false;
+      final timestamp = int.tryParse(parts.last) ?? 0;
+      return (now - timestamp) <= 10; // 10 second window
+    });
+
+    if (recentDuplicates.isNotEmpty) {
+      print(
+          '[$requestId] ⚠️ DUPLICATE DETECTED - Same notification processed within 10 seconds');
+      return;
+    }
+
+    // Add current timestamp to the key
+    final timestampedKey = '${notificationKey}_${now}';
+    _processedNotifications.add(timestampedKey);
+
+    // Clean up old entries (older than 60 seconds)
+    _processedNotifications.removeWhere((key) {
+      final parts = key.split('_');
+      if (parts.length < 4) return false;
+      final timestamp = int.tryParse(parts.last) ?? 0;
+      return (now - timestamp) > 60;
+    });
+
     // Extract sender information
     final senderInfo = _extractSenderInfo(packageName, event);
-    print('[SiyasatPH] Sender info: $senderInfo');
+    print('[$requestId] Sender info: $senderInfo');
 
     try {
       // Analyze the message using the rules engine
-      print('[SiyasatPH] Starting analysis...');
+      print('[$requestId] 📊 Starting analysis...');
       final verdict = await _rulesEngine.analyze(fullMessage, senderInfo);
 
-      print('[SiyasatPH] Analysis complete!');
-      print('[SiyasatPH] Verdict level: ${verdict.level}');
-      print('[SiyasatPH] Risk reasons: ${verdict.reasons}');
-      print('[SiyasatPH] Explanation: ${verdict.explanation}');
+      print('[$requestId] ✅ Analysis complete!');
+      print('[$requestId] Verdict level: ${verdict.level}');
+      print('[$requestId] Risk reasons: ${verdict.reasons}');
+      print('[$requestId] Explanation: ${verdict.explanation}');
 
-      // If it's flagged as suspicious or scam, show an alert
+      // If it's flagged as suspicious or scam, show local alert and send FCM alert to family
       if (verdict.level != RiskLevel.safe) {
-        print('[SiyasatPH] ALERT TRIGGERED - Showing notification');
+        print('[$requestId] 🚨 ALERT TRIGGERED - Showing local alert and sending FCM to family');
         await NotificationService.showScamAlert(
           packageName: packageName,
           originalText: fullMessage,
           verdictLevel: _getVerdictLabel(verdict.level),
           explanation: verdict.explanation,
         );
+        print('[$requestId] ✅ Local notification shown');
 
         // Log the detection for debugging
-        print('[SiyasatPH] Scam detected from $packageName: ${verdict.level}');
-        print('[SiyasatPH] Risk score: ${verdict.reasons}');
+        print('[$requestId] Scam detected from $packageName: ${verdict.level}');
+        print('[$requestId] Risk score: ${verdict.reasons}');
 
         // Alert all subscribed devices using the unique topic
+        print('[$requestId] 📡 Fetching unique topic...');
         final topic = await FcmService.getUniqueTopic();
+        print('[$requestId] 📡 Topic obtained: $topic');
+        print('[$requestId] 📡 Sending FCM alert to all subscribed devices...');
+
         await FcmSender.sendToTopic(
           topic: topic,
           title: 'Scam alert - ${verdict.level.toString()}',
           body: 'May natanggap ang iyong family member na posibleng scam. Makipag-usap sa kanya agad para maiwasan ang panganib.',
         );
-
+        print('[$requestId] ✅ FCM alert sent successfully');
       } else {
-        print('[SiyasatPH] Message is SAFE - no alert');
+        print('[$requestId] ✅ Message is SAFE - no alert needed');
       }
     } catch (e, stackTrace) {
-      print('[SiyasatPH] ERROR processing notification: $e');
-      print('[SiyasatPH] Stack trace: $stackTrace');
+      print('[$requestId] ❌ ERROR processing notification: $e');
+      print('[$requestId] Stack trace: $stackTrace');
     }
+
+    print('[$requestId] ========== NOTIFICATION PROCESSING COMPLETE ==========\n');
   }
 
   /// Extract sender information from notification metadata
